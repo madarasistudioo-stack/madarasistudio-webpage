@@ -1,5 +1,8 @@
 import { Hero } from "@/components/Hero";
-import { CategoryTile } from "@/components/CategoryTile";
+import Link from "next/link";
+import { CategoryStrip } from "@/components/CategoryStrip";
+import { ProductCard } from "@/components/ProductCard";
+import { products } from "@/lib/products";
 import { TemplateCard } from "@/components/TemplateCard";
 import { KolamDivider } from "@/components/KolamDivider";
 import { AIAssistantWidget } from "@/components/AIAssistantWidget";
@@ -53,11 +56,19 @@ export default function HomePage() {
       <Hero />
 
       <section className="container-page py-8">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <CategoryTile name="Photobooks" icon="gopuram" href="/shop?category=Photobooks" />
-          <CategoryTile name="Planners" icon="davara" href="/shop?category=Planners" />
-          <CategoryTile name="Journals" icon="bell" href="/shop?category=Journals" />
-          <CategoryTile name="Notebooks" icon="kolam" href="/shop?category=Notebooks" />
+        <h2 className="mb-5 font-display text-2xl text-pine">Popular products</h2>
+        <CategoryStrip />
+      </section>
+
+      <section className="container-page py-10">
+        <div className="mb-6 flex items-end justify-between">
+          <h2 className="font-display text-2xl text-pine">Bestsellers</h2>
+          <Link href="/shop" className="text-sm text-olive hover:underline">Shop all designs</Link>
+        </div>
+        <div className="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+          {products.filter((p) => p.bestseller).slice(0, 8).map((p) => (
+            <ProductCard key={p.slug} product={p} />
+          ))}
         </div>
       </section>
 

@@ -79,7 +79,21 @@ export type Memory = (typeof MEMORIES)[number];
 export const MEMORY_TYPES = MEMORIES;
 export type MemoryType = Memory;
 
-export type PriceRange = { id: string; label: string; min: number; max: number };
+// Broad browsing themes shown as quick-filter chips at the top of every
+// category page — the first thing a shopper narrows by.
+export const THEMES = [
+  "Chennai Classics",
+  "Couples & Wedding",
+  "Family & Generations",
+  "Baby & Early Years",
+  "Travel & Holidays",
+  "Festivals & Traditions",
+  "Friends & College",
+  "Everyday Rituals",
+] as const;
+export type Theme = (typeof THEMES)[number];
+
+export type PriceRange ={ id: string; label: string; min: number; max: number };
 
 export const PRICE_RANGES: PriceRange[] = [
   { id: "under-500", label: "Under ₹500", min: 0, max: 499 },

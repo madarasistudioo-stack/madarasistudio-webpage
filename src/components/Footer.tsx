@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { GopuramIcon } from "@/components/Icons";
+import { CATEGORIES } from "@/lib/products";
 
 export function Footer() {
   return (
@@ -21,10 +22,7 @@ export function Footer() {
         <FooterColumn
           title="Shop"
           links={[
-            { href: "/shop?category=Photobooks", label: "Photobooks" },
-            { href: "/shop?category=Journals", label: "Journals" },
-            { href: "/shop?category=Planners", label: "Planners" },
-            { href: "/shop?category=Notebooks", label: "Notebooks" },
+            ...CATEGORIES.map((c) => ({ href: `/shop/${c.slug}`, label: c.name })),
           ]}
         />
 

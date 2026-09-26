@@ -15,11 +15,17 @@ export type CartItem = {
   quantity: number;
 };
 
+// Two bag lines are the same item only if every chosen option matches —
+// a Small and a Large of the same photobook are separate lines with separate prices.
+export function lineKey(item: CartItem): string {
+  return [item.slug, item.color, item.size, item.pageCount, item.personalisation, (item.photos ?? []).join(",")].join("|");
+}
+
 type CartContextValue = {
   items: CartItem[];
   addItem: (item: CartItem) => void;
-  removeItem: (slug: string, color: string) => void;
-  updateQuantity: (slug: string, color: string, quantity: number) => void;
+  removeItem: (key: string) => void;
+  updateQuantity: (key: string, quantity: number) => void;
   clear: () => void;
   subtotal: number;
   count: number;
@@ -49,26 +55,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = (item: CartItem) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.slug === item.slug && i.color === item.color);
-      if (existing) {
-        return prev.map((i) =>
-          i.slug === item.slug && i.color === item.color
-            ? { ...i, quantity: i.quantity + item.quantity }
-            : i
-        );
+      const key = lineKey(item);
+      if (prev.some((i) => lineKey(i) === key)) {
+        return prev.map((i) => (lineKey(i) === key ? { ...i, quantity: i.quantity + item.quantity } : i));
       }
       return [...prev, item];
     });
   };
 
-  const removeItem = (slug: string, color: string) => {
-    setItems((prev) => prev.filter((i) => !(i.slug === slug && i.color === color)));
+  const removeItem = (key: string) => {
+    setItems((prev) => prev.filter((i) => lineKey(i) !== key));
   };
 
-  const updateQuantity = (slug: string, color: string, quantity: number) => {
-    setItems((prev) =>
-      prev.map((i) => (i.slug === slug && i.color === color ? { ...i, quantity: Math.max(1, quantity) } : i))
-    );
+  const updateQuantity = (key: string, quantity: number) => {
+    setItems((prev) => prev.map((i) => (lineKey(i) === key ? { ...i, quantity: Math.max(1, quantity) } : i)));
   };
 
   const clear = () => setItems([]);

@@ -7,7 +7,9 @@ export function ColorSwatches({
   colors,
   selected,
   onSelect,
+  title = "Cover",
 }: {
+  title?: string;
   colors: ColorOption[];
   selected: ColorOption;
   onSelect: (color: ColorOption) => void;
@@ -15,9 +17,9 @@ export function ColorSwatches({
   return (
     <div>
       <p className="text-sm text-pine/60">
-        Cover: <span className="text-pine">{selected.name}</span>
+        {title}: <span className="text-pine">{selected.name}</span>
       </p>
-      <div className="mt-2 flex gap-2">
+      <div className="mt-2 flex flex-wrap gap-2">
         {colors.map((c) => (
           <button
             key={c.hex}

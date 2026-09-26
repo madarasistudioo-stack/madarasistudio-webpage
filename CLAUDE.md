@@ -51,8 +51,14 @@ data).
   kept as a read-only backup (git remote `old-origin`). The local Mac pushes
   as GitHub user **`cxentric-guy`** (a collaborator on the new repo), which
   is a different account from `cxentric`, so don't mix the two up.
-- Vercel project: `madarasistudio-xlsx`, scope `seeni-venkat-s-projects`,
-  Hobby plan
+- Vercel project: `madarasistudio-webpage`, team `madarasistudioo-8629`,
+  Hobby plan (the old `madarasistudio-xlsx` project is retired). Vercel runs
+  the `vercel-build` script, which does `prisma db push` before `next build`,
+  so schema changes reach the Neon database on every deploy.
+- Local builds: the project folder is on the iCloud-synced Desktop, which
+  makes `next build` crawl. `node_modules` is a symlink to
+  `node_modules.nosync` for this reason. `.env.production.local` holds
+  `[SENSITIVE]` placeholders and breaks local builds — build without it.
 - Custom domain: `www.madarasistudio.com` (already connected and live)
 - Local clone lives on the owner's Mac mini, under
   `~/Desktop/Madarasistudio/files (3)/madarasi-studio`

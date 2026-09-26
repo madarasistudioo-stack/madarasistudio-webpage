@@ -255,6 +255,106 @@ export function PaperPlaneIcon({ className, style }: IconProps) {
   );
 }
 
+// A string of malli poo (jasmine) buds, the way it's tied for hair or a doorway.
+export function JasmineIcon({ className, style }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} style={style} aria-hidden="true">
+      <path d="M6 14 C16 26 32 26 42 14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      {[10, 17, 24, 31, 38].map((x, i) => {
+        const y = 14 + Math.sin(((x - 6) / 36) * Math.PI) * 9;
+        return (
+          <g key={x}>
+            <ellipse cx={x} cy={y + 5} rx="2.4" ry="4" stroke="currentColor" strokeWidth="1.2" />
+            {i % 2 === 0 && <circle cx={x} cy={y + 11} r="1" fill="currentColor" />}
+          </g>
+        );
+      })}
+      <path d="M24 34 C21 38 21 41 24 43 C27 41 27 38 24 34 Z" stroke="currentColor" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
+// The Marina lighthouse, with a line of sea at its foot.
+export function LighthouseIcon({ className, style }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} style={style} aria-hidden="true">
+      <path d="M20 12 H28 L30 38 H18 Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+      <path d="M19 20 H29 M18.6 28 H29.4" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M21 12 V8 H27 V12 M24 8 V5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      <path d="M29 9 L38 6 M29 10.5 L38 13" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+      <path d="M6 42 C10 39 14 45 18 42 S26 39 30 42 S38 45 42 42" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+// A leaning coconut palm.
+export function PalmIcon({ className, style }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} style={style} aria-hidden="true">
+      <path d="M20 43 C22 34 24 24 27 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path
+        d="M27 16 C22 10 14 10 9 14 M27 16 C24 9 26 5 31 4 M27 16 C33 11 40 12 43 17 M27 16 C32 18 35 23 34 28 M27 16 C21 17 17 22 17 26"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
+      <circle cx="26" cy="19" r="1.5" stroke="currentColor" strokeWidth="1.1" />
+      <path d="M12 43 H34" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+// A thottil — the cloth cradle hung from a beam.
+export function CradleIcon({ className, style }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} style={style} aria-hidden="true">
+      <path d="M6 8 H42" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M14 8 L10 26 M34 8 L38 26" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M8 26 C12 40 36 40 40 26 Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+      <circle cx="24" cy="30" r="3" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M16 32 C20 34 28 34 32 32" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+// A Pongal pot boiling over, with sugarcane.
+export function PotIcon({ className, style }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} style={style} aria-hidden="true">
+      <path d="M14 22 C8 30 12 42 24 42 C36 42 40 30 34 22 Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+      <path d="M15 22 H33" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M18 22 C17 17 21 15 22 18 C23 13 28 14 27 18 C29 15 32 18 30 22" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M14 30 C20 33 28 33 34 30" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
+      <path d="M40 42 L44 8 M43 20 L46 17 M42 30 L45 27" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+// Layered hills with mist — Ooty, Kodai, any mountain trip.
+export function HillsIcon({ className, style }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} style={style} aria-hidden="true">
+      <path d="M4 36 L17 16 L25 27 L31 19 L44 36 Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+      <path d="M13 22 L17 16 L20.5 21" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
+      <path d="M8 41 H22 M26 41 H40" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="37" cy="10" r="3" stroke="currentColor" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
+// A veena, for the music season and anything Carnatic.
+export function VeenaIcon({ className, style }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} style={style} aria-hidden="true">
+      <circle cx="13" cy="33" r="8" stroke="currentColor" strokeWidth="1.4" />
+      <circle cx="37" cy="15" r="4" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M19 28 L34 17" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+      <path d="M13 33 L40 12 M15 35 L42 14" stroke="currentColor" strokeWidth="0.8" />
+      <path d="M40 12 C42 8 45 7 45 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export const ICONS = {
   gopuram: GopuramIcon,
   davara: DavaraIcon,
@@ -271,6 +371,13 @@ export const ICONS = {
   family: FamilyIcon,
   suitcase: SuitcaseIcon,
   paperPlane: PaperPlaneIcon,
+  jasmine: JasmineIcon,
+  lighthouse: LighthouseIcon,
+  palm: PalmIcon,
+  cradle: CradleIcon,
+  pot: PotIcon,
+  hills: HillsIcon,
+  veena: VeenaIcon,
 } as const;
 
 export type IconName = keyof typeof ICONS;

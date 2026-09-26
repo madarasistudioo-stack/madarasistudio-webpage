@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCart } from "@/components/CartProvider";
+import { useCart, lineKey } from "@/components/CartProvider";
 import { formatRupees } from "@/lib/utils";
 
 export default function CartPage() {
@@ -28,7 +28,7 @@ export default function CartPage() {
 
       <div className="mt-8 divide-y divide-mist">
         {items.map((item) => (
-          <div key={`${item.slug}-${item.color}`} className="flex flex-wrap items-center gap-4 py-5">
+          <div key={lineKey(item)} className="flex flex-wrap items-center gap-4 py-5">
             <div className="flex-1">
               <p className="font-display text-pine">{item.name}</p>
               <p className="text-sm text-pine/50">
@@ -46,7 +46,7 @@ export default function CartPage() {
 
             <div className="flex items-center rounded-md border border-mist">
               <button
-                onClick={() => updateQuantity(item.slug, item.color, item.quantity - 1)}
+                onClick={() => updateQuantity(lineKey(item), item.quantity - 1)}
                 className="px-3 py-1.5 text-pine/70 hover:text-pine"
                 aria-label="Decrease quantity"
               >
@@ -54,7 +54,7 @@ export default function CartPage() {
               </button>
               <span className="w-8 text-center text-pine">{item.quantity}</span>
               <button
-                onClick={() => updateQuantity(item.slug, item.color, item.quantity + 1)}
+                onClick={() => updateQuantity(lineKey(item), item.quantity + 1)}
                 className="px-3 py-1.5 text-pine/70 hover:text-pine"
                 aria-label="Increase quantity"
               >
@@ -65,7 +65,7 @@ export default function CartPage() {
             <p className="w-24 text-right text-pine">{formatRupees(item.price * item.quantity)}</p>
 
             <button
-              onClick={() => removeItem(item.slug, item.color)}
+              onClick={() => removeItem(lineKey(item))}
               className="text-sm text-pine/40 hover:text-rust"
             >
               Remove

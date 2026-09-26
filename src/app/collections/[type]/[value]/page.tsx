@@ -1,78 +1,98 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { OCCASIONS, PLACES, MEMORIES, PRICE_RANGES, PERSONALISATION_OPTIONS, STYLES } from "@/lib/taxonomy";
+import type { Metadata } from "next";
+import { OCCASIONS, PLACES, MEMORIES } from "@/lib/taxonomy";
 import { slugify } from "@/lib/utils";
-import { products } from "@/lib/products";
-import { ProductCard } from "@/components/ProductCard";
+import { products, type Product } from "@/lib/products";
+import { ProductListing } from "@/components/ProductListing";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { KolamDivider } from "@/components/KolamDivider";
+import type { FilterKey, SearchParams } from "@/lib/listing";
 
-const LISTS: Record<string, readonly string[]> = { occasion: OCCASIONS, place: PLACES, memory: MEMORIES };
-const TITLES: Record<string, string> = { occasion: "Occasion", place: "Place", memory: "Memory" };
+type CollectionType = "occasion" | "place" | "memory";
 
-const LEGACY_OCCASION_SLUGS: Record<string, string> = {
-  birthday: "birthday",
-  anniversary: "anniversary",
-  housewarming: "housewarming",
-  farewell: "farewell",
-  graduation: "graduation",
-  "new-year": "newyear",
-  "just-because": "justbecause",
+const LISTS: Record<CollectionType, readonly string[]> = { occasion: OCCASIONS, place: PLACES, memory: MEMORIES };
+const TITLES: Record<CollectionType, string> = { occasion: "Shop by occasion", place: "Shop by place", memory: "Shop by memory" };
+const MATCH: Record<CollectionType, (p: Product, label: string) => boolean> = {
+  occasion: (p, l) => p.taxonomyOccasions.includes(l as never),
+  place: (p, l) => p.places.includes(l as never),
+  memory: (p, l) => p.memoryTypes.includes(l as never),
+};
+const INTRO: Record<CollectionType, (label: string) => string> = {
+  occasion: (l) => `Photobooks, frames, mugs and more, made for ${l.toLowerCase()} — pick a design and make it yours.`,
+  place: (l) => `Designs for the photos you brought back from ${l} — books to relive it, frames to keep it in view.`,
+  memory: (l) => `For ${l.toLowerCase()} — the photos and stories you'd like to keep somewhere better than a phone.`,
 };
 
-export default function CollectionPage({ params }: { params: { type: string; value: string } }) {
-  const list = LISTS[params.type];
-  if (!list) notFound();
-
+function resolve(params: { type: string; value: string }) {
+  const type = params.type as CollectionType;
+  const list = LISTS[type];
+  if (!list) return null;
   const label = list.find((item) => slugify(item) === params.value);
-  if (!label) notFound();
+  return label ? { type, label, list } : null;
+}
 
-  const legacyTag = params.type === "occasion" ? LEGACY_OCCASION_SLUGS[params.value] : undefined;
-  const matches = legacyTag ? products.filter((p) => p.occasions.includes(legacyTag)) : [];
+export function generateMetadata({ params }: { params: { type: string; value: string } }): Metadata {
+  const found = resolve(params);
+  return found ? { title: `${found.label} — Madarasi Studio`, description: INTRO[found.type](found.label) } : {};
+}
+
+export default function CollectionPage({
+  params,
+  searchParams,
+}: {
+  params: { type: string; value: string };
+  searchParams: SearchParams;
+}) {
+  const found = resolve(params);
+  if (!found) notFound();
+  const { type, label, list } = found;
+
+  const matches = products.filter((p) => MATCH[type](p, label));
+  // Sibling collections of the same type that actually have products.
+  const siblings = list.filter((item) => item !== label && products.some((p) => MATCH[type](p, item)));
 
   return (
-    <div className="container-page py-12">
-      <p className="text-sm text-pine/50">{TITLES[params.type]}</p>
-      <h1 className="mt-1 font-display text-3xl text-pine">{label}</h1>
+    <div className="container-page py-8">
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: TITLES[type], href: "/shop" }, { label }]} />
 
-      <div className="mt-8 grid gap-8 sm:grid-cols-3">
-        <FilterGroup title="Budget" options={PRICE_RANGES.map((r) => r.label)} />
-        <FilterGroup title="Personalise with" options={[...PERSONALISATION_OPTIONS]} />
-        <FilterGroup title="Style" options={[...STYLES]} />
-      </div>
-      <p className="mt-3 text-xs text-pine/40">
-        These will become tap-to-filter chips once every product carries the full taxonomy — for now they show what
-        this collection will support.
-      </p>
+      <section className="mt-5 rounded-2xl border border-mist bg-cloud/70 p-6 text-center sm:p-10">
+        <p className="text-xs uppercase tracking-[0.2em] text-olive">{TITLES[type]}</p>
+        <h1 className="mt-2 font-display text-4xl italic text-pine sm:text-5xl">{label}</h1>
+        <p className="mx-auto mt-3 max-w-lg text-pine/65">{INTRO[type](label)}</p>
+        <KolamDivider className="mx-auto mt-6 max-w-xs" />
+      </section>
 
-      <div className="mt-10">
+      {siblings.length > 0 && (
+        <div className="-mx-5 mt-6 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+          {siblings.map((s) => (
+            <Link
+              key={s}
+              href={`/collections/${type}/${slugify(s)}`}
+              className="shrink-0 rounded-full border border-mist bg-cloud/60 px-3 py-1 text-xs text-pine/70 hover:border-olive hover:text-pine"
+            >
+              {s}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-8">
         {matches.length > 0 ? (
-          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
-            {matches.map((p) => (
-              <ProductCard key={p.slug} product={p} />
-            ))}
-          </div>
+          <ProductListing
+            products={matches}
+            basePath={`/collections/${type}/${params.value}`}
+            searchParams={searchParams}
+            locked={[type as FilterKey]}
+          />
         ) : (
-          <div className="rounded-xl border border-mist bg-cloud p-8 text-center">
-            <p className="text-pine/70">We're still building out the {label} collection.</p>
+          <div className="rounded-xl border border-mist bg-cloud p-10 text-center">
+            <p className="text-pine/70">We're still designing for {label}. Here's everything else in the meantime.</p>
             <Link href="/shop" className="mt-3 inline-block text-sm text-olive hover:underline">
-              Browse the full shop instead
+              Browse the full shop
             </Link>
           </div>
         )}
-      </div>
-    </div>
-  );
-}
-
-function FilterGroup({ title, options }: { title: string; options: string[] }) {
-  return (
-    <div>
-      <h3 className="font-display text-sm text-pine">{title}</h3>
-      <div className="mt-2 flex flex-wrap gap-2">
-        {options.map((o) => (
-          <span key={o} className="rounded-full border border-mist px-3 py-1 text-xs text-pine/60">
-            {o}
-          </span>
-        ))}
       </div>
     </div>
   );

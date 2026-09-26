@@ -29,3 +29,6 @@ next-env.d.ts
 /prisma/dev.db
 .vercel
 .env*
+
+# iCloud-excluded dependency folder (symlinked as node_modules)
+node_modules.nosync

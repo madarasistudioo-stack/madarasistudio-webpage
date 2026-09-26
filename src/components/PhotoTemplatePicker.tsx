@@ -1,18 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { KolamIcon } from "@/components/Icons";
 import { cn } from "@/lib/utils";
 
 export type PhotoSlot = { url: string | null; status: "empty" | "uploading" | "ready" | "error" };
 
 export type PhotoLayout = "grid" | "hero" | "strip";
-
-const SLOT_COUNT_BY_SIZE: Record<string, number> = {
-  small: 4,
-  medium: 8,
-  large: 12,
-};
 
 const HERO_COLLECTIONS = ["Wedding", "Anniversary", "Us", "Our Story", "Engagement"];
 const STRIP_COLLECTIONS = ["Goa", "First Trip", "Road Trips", "International Trips", "Honeymoon Destinations"];
@@ -24,18 +18,29 @@ export function layoutForCollection(collection?: string): PhotoLayout {
 }
 
 export function PhotoTemplatePicker({
-  sizeId,
+  slotCount,
+  label = "Fill in your photos",
   layout = "grid",
   onChange,
 }: {
-  sizeId: string;
+  slotCount: number;
+  label?: string;
   layout?: PhotoLayout;
   onChange: (photos: PhotoSlot[]) => void;
 }) {
-  const slotCount = SLOT_COUNT_BY_SIZE[sizeId] ?? 8;
   const [slots, setSlots] = useState<PhotoSlot[]>(
     Array.from({ length: slotCount }, () => ({ url: null, status: "empty" }))
   );
+
+  // Changing size or pack changes how many photos fit — keep what's already added.
+  useEffect(() => {
+    setSlots((prev) => {
+      if (prev.length === slotCount) return prev;
+      const next = Array.from({ length: slotCount }, (_, i) => prev[i] ?? { url: null, status: "empty" as const });
+      onChange(next);
+      return next;
+    });
+  }, [slotCount, onChange]);
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -86,6 +91,7 @@ export function PhotoTemplatePicker({
   }
 
   function slotClass(index: number): string {
+    if (slotCount === 1) return "col-span-2 aspect-[4/5]";
     if (layout === "hero" && index === 0) return "col-span-4 aspect-[16/9]";
     if (layout === "strip") return "aspect-[3/2] w-40 flex-none";
     return "aspect-square";
@@ -97,7 +103,7 @@ export function PhotoTemplatePicker({
   return (
     <div>
       <p className="text-sm text-pine/60">
-        Fill in your photos{" "}
+        {label}{" "}
         <span className="text-pine/40">
           ({slots.filter((s) => s.status === "ready").length} of {slotCount} added)
         </span>
