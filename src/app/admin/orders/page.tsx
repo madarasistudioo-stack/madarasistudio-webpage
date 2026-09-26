@@ -16,7 +16,7 @@ export default async function OrdersAdmin({ searchParams }: { searchParams: { st
   return (
     <div>
       <h1 className="font-display text-3xl text-pine">Orders</h1>
-      <p className="mt-1 text-sm text-pine/55">Orders are saved here once payments (Razorpay) are switched on.</p>
+      <p className="mt-1 text-sm text-pine/55">UPI orders stay “created” until you check the UTR in your bank app and set them to “paid”.</p>
 
       <div className="mt-5 overflow-x-auto rounded-xl border border-mist bg-cloud">
         {orders.length === 0 ? (
@@ -33,13 +33,20 @@ export default async function OrdersAdmin({ searchParams }: { searchParams: { st
                     <p className="text-pine">#{o.id.slice(-8)}</p>
                     <p className="text-xs text-pine/45">{o.createdAt.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}</p>
                   </td>
-                  <td className="py-3 text-pine/75">{o.user?.name ?? o.user?.email ?? o.user?.phone ?? "Guest"}</td>
+                  <td className="py-3 text-xs text-pine/75">
+                    <p className="text-sm text-pine">{o.customerName ?? o.user?.name ?? "Guest"}</p>
+                    <p>{o.email ?? o.user?.email}{o.phone ? ` · ${o.phone}` : ""}</p>
+                    {o.address && typeof o.address === "object" && !Array.isArray(o.address) && (
+                      <p className="text-pine/50">{[(o.address as Record<string, string>).line, (o.address as Record<string, string>).city, (o.address as Record<string, string>).pincode].filter(Boolean).join(", ")}</p>
+                    )}
+                    {o.userId && <a href={`/admin/users/${o.userId}`} className="text-olive hover:underline">Customer profile</a>}
+                  </td>
                   <td className="py-3 text-xs text-pine/70">
                     {((Array.isArray(o.items) ? o.items : []) as Line[]).map((l, i) => (
                       <p key={i}>{l.quantity ?? 1} × {l.name} {l.kind ? `(${l.kind}${l.size ? `, ${l.size}` : ""})` : ""}</p>
                     ))}
                   </td>
-                  <td className="py-3 text-pine">{formatRupees(o.totalPaise / 100)}</td>
+                  <td className="py-3 text-pine">{formatRupees(o.totalPaise / 100)}<p className="text-xs uppercase text-pine/45">{o.paymentMethod}{o.paymentRef ? ` · ${o.paymentRef}` : ""}</p></td>
                   <td className="px-4 py-3">
                     <form action={setOrderStatus} className="flex gap-2">
                       <input type="hidden" name="id" value={o.id} />

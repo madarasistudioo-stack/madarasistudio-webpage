@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { isAdminEmail } from "@/lib/admin";
 import { addUser, deleteUser, setUserBlocked } from "../actions";
@@ -15,7 +16,7 @@ export default async function UsersAdmin({ searchParams }: { searchParams: { q?:
 
   return (
     <div>
-      <h1 className="font-display text-3xl text-pine">Users</h1>
+      <h1 className="font-display text-3xl text-pine">Customers</h1>
 
       <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
         <form className="flex gap-2">
@@ -41,8 +42,8 @@ export default async function UsersAdmin({ searchParams }: { searchParams: { q?:
               return (
                 <tr key={u.id}>
                   <td className="px-4 py-3">
-                    <p className="text-pine">{u.name ?? "—"} {owner && <span className="ml-1 rounded bg-marigold/30 px-1.5 text-[10px] uppercase">Admin</span>}</p>
-                    <p className="text-xs text-pine/50">{u.email ?? u.phone}</p>
+                    <p className="text-pine"><Link href={`/admin/users/${u.id}`} className="hover:text-olive hover:underline">{u.name ?? u.email ?? u.phone}</Link> {owner && <span className="ml-1 rounded bg-marigold/30 px-1.5 text-[10px] uppercase">Admin</span>}</p>
+                    <p className="text-xs text-pine/50">{u.email ?? u.phone}{u.tags.length > 0 && ` · ${u.tags.join(", ")}`}</p>
                   </td>
                   <td className="text-pine/70">{u.accounts.map((a) => a.provider).join(", ") || (u.phone ? "phone" : "not yet")}</td>
                   <td className="text-pine/70">{u.createdAt.toLocaleDateString("en-IN")}</td>

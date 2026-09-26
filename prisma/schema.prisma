@@ -51,6 +51,9 @@ model User {
   sessions      Session[]
   orders        Order[]
   blocked       Boolean   @default(false)
+  tags          String[]  @default([])
+  notes         CustomerNote[]
+  tickets       SupportTicket[]
   createdAt     DateTime  @default(now())
 }
 
@@ -84,9 +87,18 @@ model Order {
   personalisation Json?
   totalPaise      Int
   currency        String   @default("INR")
-  status          String   @default("created") // created | paid | failed
+  status          String   @default("created") // created | paid | printing | shipped | delivered | cancelled | refunded | failed
   razorpayOrderId String?
+  paymentMethod   String   @default("upi") // upi | razorpay
+  paymentRef      String? // UPI transaction id or Razorpay payment id
+  customerName    String?
+  email           String?
+  phone           String?
+  address         Json?
   createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+
+  @@index([createdAt])
 }
 
 // Admin overrides layered on the code catalogue (src/lib/products.ts):
@@ -111,4 +123,53 @@ model Event {
 
   @@index([type, createdAt])
   @@index([createdAt])
+}
+
+// --- CRM ------------------------------------------------------------------
+
+// Private admin notes on a customer.
+model CustomerNote {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  body      String
+  createdAt DateTime @default(now())
+}
+
+// Newsletter sign-ups and anyone who got in touch before buying.
+model Lead {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  phone     String?
+  source    String // newsletter | contact | checkout
+  status    String   @default("new") // new | contacted | converted | unsubscribed
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// Messages from the Contact page, with the admin's replies.
+model SupportTicket {
+  id        String          @id @default(cuid())
+  userId    String?
+  user      User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name      String
+  email     String
+  phone     String?
+  orderRef  String?
+  subject   String
+  status    String          @default("open") // open | replied | closed
+  messages  TicketMessage[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @default(now()) @updatedAt
+}
+
+model TicketMessage {
+  id        String        @id @default(cuid())
+  ticketId  String
+  ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  fromAdmin Boolean       @default(false)
+  body      String
+  createdAt DateTime      @default(now())
 }

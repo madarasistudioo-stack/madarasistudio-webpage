@@ -7,6 +7,11 @@ const DAY = 24 * 60 * 60 * 1000;
 
 export default async function AdminOverview() {
   const weekAgo = new Date(Date.now() - 7 * DAY);
+  const [openTickets, newLeads, awaiting] = await Promise.all([
+    prisma.supportTicket.count({ where: { status: "open" } }),
+    prisma.lead.count({ where: { status: "new" } }),
+    prisma.order.count({ where: { status: "created" } }),
+  ]);
   const [users, newUsers, orders, paid, views, carts, recentUsers, recentEvents] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { createdAt: { gte: weekAgo } } }),
@@ -21,7 +26,12 @@ export default async function AdminOverview() {
   return (
     <div>
       <h1 className="font-display text-3xl text-pine">Overview</h1>
-      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
+      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+        <Todo href="/admin/orders" count={awaiting} label="orders awaiting payment check" />
+        <Todo href="/admin/inbox" count={openTickets} label="open messages" />
+        <Todo href="/admin/leads?status=new" count={newLeads} label="new leads" />
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-3">
         <StatCard label="Customers" value={users} note={`${newUsers} new this week`} />
         <StatCard label="Orders" value={orders} />
         <StatCard label="Revenue" value={formatRupees((paid._sum.totalPaise ?? 0) / 100)} note="Paid and later statuses" />
@@ -49,5 +59,13 @@ export default async function AdminOverview() {
         </Panel>
       </div>
     </div>
+  );
+}
+
+function Todo({ href, count, label }: { href: string; count: number; label: string }) {
+  return (
+    <a href={href} className={`rounded-xl border p-4 text-sm ${count > 0 ? "border-marigold bg-marigold/15 text-pine" : "border-mist bg-cloud text-pine/50"}`}>
+      <span className="font-display text-2xl">{count}</span> {label}
+    </a>
   );
 }

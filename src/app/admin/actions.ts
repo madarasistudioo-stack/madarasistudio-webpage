@@ -69,3 +69,65 @@ export async function setOrderStatus(form: FormData) {
 }
 
 const ORDER_STATUSES = ["created", "paid", "printing", "shipped", "delivered", "cancelled", "refunded", "failed"];
+
+// --- CRM --------------------------------------------------------------------
+
+export async function addNote(form: FormData) {
+  await requireAdmin();
+  const userId = String(form.get("userId"));
+  const body = String(form.get("body") ?? "").trim().slice(0, 2000);
+  if (body) await prisma.customerNote.create({ data: { userId, body } });
+  revalidatePath(`/admin/users/${userId}`);
+}
+
+export async function deleteNote(form: FormData) {
+  await requireAdmin();
+  const note = await prisma.customerNote.delete({ where: { id: String(form.get("id")) } });
+  revalidatePath(`/admin/users/${note.userId}`);
+}
+
+export async function setTags(form: FormData) {
+  await requireAdmin();
+  const userId = String(form.get("userId"));
+  const tags = Array.from(new Set(String(form.get("tags") ?? "").split(",").map((t) => t.trim()).filter(Boolean))).slice(0, 12);
+  await prisma.user.update({ where: { id: userId }, data: { tags } });
+  revalidatePath(`/admin/users/${userId}`);
+}
+
+export async function setLeadStatus(form: FormData) {
+  await requireAdmin();
+  const status = String(form.get("status"));
+  if (!["new", "contacted", "converted", "unsubscribed"].includes(status)) return;
+  await prisma.lead.update({ where: { id: String(form.get("id")) }, data: { status, note: String(form.get("note") ?? "") || undefined } });
+  revalidatePath("/admin/leads");
+}
+
+export async function deleteLead(form: FormData) {
+  await requireAdmin();
+  await prisma.lead.delete({ where: { id: String(form.get("id")) } });
+  revalidatePath("/admin/leads");
+}
+
+export async function replyTicket(form: FormData) {
+  await requireAdmin();
+  const id = String(form.get("id"));
+  const body = String(form.get("body") ?? "").trim().slice(0, 4000);
+  if (!body) return;
+  const ticket = await prisma.supportTicket.update({
+    where: { id },
+    data: { status: "replied", messages: { create: { body, fromAdmin: true } } },
+  });
+  const { sendMail } = await import("@/lib/mailer");
+  await sendMail(ticket.email, `Re: ${ticket.subject}`, `Hi ${ticket.name},\n\n${body}\n\n— Madarasi Studio`);
+  revalidatePath(`/admin/inbox/${id}`);
+}
+
+export async function setTicketStatus(form: FormData) {
+  await requireAdmin();
+  const id = String(form.get("id"));
+  const status = String(form.get("status"));
+  if (!["open", "replied", "closed"].includes(status)) return;
+  await prisma.supportTicket.update({ where: { id }, data: { status } });
+  revalidatePath(`/admin/inbox/${id}`);
+  revalidatePath("/admin/inbox");
+}

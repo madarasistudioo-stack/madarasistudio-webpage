@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { GopuramIcon } from "@/components/Icons";
 import { CATEGORIES } from "@/lib/products";
+import { NewsletterForm } from "@/components/NewsletterForm";
 
 export function Footer() {
   return (
@@ -30,6 +31,7 @@ export function Footer() {
           title="Studio"
           links={[
             { href: "/about", label: "Our story" },
+            { href: "/contact", label: "Contact us" },
             { href: "/auth/signin", label: "Sign in" },
             { href: "/cart", label: "Your bag" },
           ]}
@@ -38,20 +40,7 @@ export function Footer() {
         <div>
           <h3 className="font-display text-sm text-pine">Stay in the loop</h3>
           <p className="mt-2 text-sm text-pine/60">New designs, once in a while. No spam.</p>
-          <form className="mt-3 flex gap-2" onSubmit={(e) => e.preventDefault()}>
-            <input
-              type="email"
-              required
-              placeholder="you@email.com"
-              className="w-full rounded-md border border-mist bg-ivory px-3 py-2 text-sm text-pine placeholder:text-pine/35 focus:border-olive"
-            />
-            <button
-              type="submit"
-              className="shrink-0 rounded-md bg-olive px-3 py-2 text-sm font-medium text-ivory transition-opacity hover:opacity-90"
-            >
-              Join
-            </button>
-          </form>
+          <NewsletterForm />
         </div>
       </div>
 

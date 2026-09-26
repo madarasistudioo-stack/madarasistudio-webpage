@@ -114,6 +114,9 @@ export function Navbar() {
           <Link href="/about" className="ml-auto py-2.5 transition-colors hover:text-olive">
             Our story
           </Link>
+          <Link href="/contact" className="py-2.5 transition-colors hover:text-olive">
+            Contact
+          </Link>
         </div>
       </nav>
 
