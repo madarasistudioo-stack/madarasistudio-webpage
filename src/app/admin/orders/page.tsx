@@ -1,0 +1,60 @@
+import { prisma } from "@/lib/prisma";
+import { formatRupees } from "@/lib/utils";
+import { setOrderStatus } from "../actions";
+
+const STATUSES = ["created", "paid", "printing", "shipped", "delivered", "cancelled", "refunded", "failed"];
+type Line = { name?: string; kind?: string; size?: string; quantity?: number };
+
+export default async function OrdersAdmin({ searchParams }: { searchParams: { status?: string } }) {
+  const orders = await prisma.order.findMany({
+    where: searchParams.status ? { status: searchParams.status } : undefined,
+    orderBy: { createdAt: "desc" },
+    take: 200,
+    include: { user: { select: { name: true, email: true, phone: true } } },
+  });
+
+  return (
+    <div>
+      <h1 className="font-display text-3xl text-pine">Orders</h1>
+      <p className="mt-1 text-sm text-pine/55">Orders are saved here once payments (Razorpay) are switched on.</p>
+
+      <div className="mt-5 overflow-x-auto rounded-xl border border-mist bg-cloud">
+        {orders.length === 0 ? (
+          <p className="p-10 text-center text-sm text-pine/45">No orders yet.</p>
+        ) : (
+          <table className="w-full min-w-[760px] text-sm">
+            <thead className="border-b border-mist text-left text-xs uppercase tracking-wider text-pine/50">
+              <tr><th className="px-4 py-3">Order</th><th>Customer</th><th>Items</th><th>Total</th><th className="px-4">Status</th></tr>
+            </thead>
+            <tbody className="divide-y divide-mist">
+              {orders.map((o) => (
+                <tr key={o.id} className="align-top">
+                  <td className="px-4 py-3">
+                    <p className="text-pine">#{o.id.slice(-8)}</p>
+                    <p className="text-xs text-pine/45">{o.createdAt.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}</p>
+                  </td>
+                  <td className="py-3 text-pine/75">{o.user?.name ?? o.user?.email ?? o.user?.phone ?? "Guest"}</td>
+                  <td className="py-3 text-xs text-pine/70">
+                    {((Array.isArray(o.items) ? o.items : []) as Line[]).map((l, i) => (
+                      <p key={i}>{l.quantity ?? 1} × {l.name} {l.kind ? `(${l.kind}${l.size ? `, ${l.size}` : ""})` : ""}</p>
+                    ))}
+                  </td>
+                  <td className="py-3 text-pine">{formatRupees(o.totalPaise / 100)}</td>
+                  <td className="px-4 py-3">
+                    <form action={setOrderStatus} className="flex gap-2">
+                      <input type="hidden" name="id" value={o.id} />
+                      <select name="status" defaultValue={o.status} className="rounded border border-mist bg-ivory px-2 py-1 text-xs capitalize">
+                        {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                      <button className="rounded-md bg-olive px-2.5 py-1 text-xs text-ivory">Update</button>
+                    </form>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}

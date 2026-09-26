@@ -6,6 +6,7 @@ import EmailProvider from "next-auth/providers/email";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import { hashOtp, normalizePhone, OTP_MAX_ATTEMPTS } from "@/lib/otp";
+import { isAdminEmail } from "@/lib/admin";
 
 const providers: AuthOptions["providers"] = [];
 
@@ -15,6 +16,8 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      // Google verifies emails, so a user an admin added by email can sign in with Google.
+      allowDangerousEmailAccountLinking: true,
     })
   );
 }
@@ -97,11 +100,29 @@ export const authOptions: AuthOptions = {
     signIn: "/auth/signin",
   },
   callbacks: {
+    // Blocked accounts can't sign in.
+    async signIn({ user }) {
+      const existing = user.email
+        ? await prisma.user.findUnique({ where: { email: user.email }, select: { blocked: true } })
+        : user.id
+          ? await prisma.user.findUnique({ where: { id: user.id }, select: { blocked: true } })
+          : null;
+      return !existing?.blocked;
+    },
     async session({ session, token }) {
       if (session.user && token.sub) {
-        (session.user as { id?: string }).id = token.sub;
+        const u = session.user as { id?: string; isAdmin?: boolean };
+        u.id = token.sub;
+        u.isAdmin = isAdminEmail(session.user.email);
       }
       return session;
+    },
+  },
+  events: {
+    async signIn({ user, account }) {
+      await prisma.event
+        .create({ data: { type: "signin", detail: account?.provider ?? "unknown", userId: user.id } })
+        .catch(() => undefined);
     },
   },
 };

@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { getCategory, getProductBySlug, type OptionChoice } from "@/lib/products";
+import { getCategory, type OptionChoice } from "@/lib/products";
+import type { LiveProduct } from "@/lib/catalog";
 import { getQuoteSuggestions } from "@/lib/quotes";
 import { cn, formatRupees } from "@/lib/utils";
 import { ProductArt } from "@/components/ProductArt";
@@ -11,8 +12,8 @@ import { PhotoTemplatePicker, layoutForCollection, type PhotoSlot } from "@/comp
 import { AIAssistantWidget } from "@/components/AIAssistantWidget";
 import { useCart } from "@/components/CartProvider";
 
-export function ProductConfigurator({ slug }: { slug: string }) {
-  const product = getProductBySlug(slug)!;
+export function ProductConfigurator({ product }: { product: LiveProduct }) {
+  const soldOut = product.stock === 0;
   const { options, art } = getCategory(product.categorySlug)!;
   const { addItem } = useCart();
 
@@ -136,11 +137,11 @@ export function ProductConfigurator({ slug }: { slug: string }) {
             </button>
           </div>
           <button
-            disabled={uploading}
+            disabled={uploading || soldOut}
             onClick={add}
             className="flex-1 rounded-md bg-olive px-5 py-3 text-sm font-medium text-ivory hover:opacity-90 disabled:opacity-50"
           >
-            {uploading ? "Photos still uploading…" : added ? "Added to bag ✓" : `Add to bag · ${formatRupees(price * quantity)}`}
+            {soldOut ? "Sold out" : uploading ? "Photos still uploading…" : added ? "Added to bag ✓" : `Add to bag · ${formatRupees(price * quantity)}`}
           </button>
         </div>
         {ready.length > 0 && <p className="mt-2 text-xs text-pine/40">{ready.length} photo(s) will be sent with this order.</p>}

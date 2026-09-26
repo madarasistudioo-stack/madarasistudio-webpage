@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { OCCASIONS, PLACES, MEMORIES } from "@/lib/taxonomy";
 import { slugify } from "@/lib/utils";
-import { products, type Product } from "@/lib/products";
+import type { Product } from "@/lib/products";
+import { getLiveProducts } from "@/lib/catalog";
 import { ProductListing } from "@/components/ProductListing";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { KolamDivider } from "@/components/KolamDivider";
@@ -37,7 +38,7 @@ export function generateMetadata({ params }: { params: { type: string; value: st
   return found ? { title: `${found.label} — Madarasi Studio`, description: INTRO[found.type](found.label) } : {};
 }
 
-export default function CollectionPage({
+export default async function CollectionPage({
   params,
   searchParams,
 }: {
@@ -48,6 +49,7 @@ export default function CollectionPage({
   if (!found) notFound();
   const { type, label, list } = found;
 
+  const products = await getLiveProducts();
   const matches = products.filter((p) => MATCH[type](p, label));
   // Sibling collections of the same type that actually have products.
   const siblings = list.filter((item) => item !== label && products.some((p) => MATCH[type](p, item)));

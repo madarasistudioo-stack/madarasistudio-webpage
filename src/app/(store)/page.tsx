@@ -2,7 +2,7 @@ import { Hero } from "@/components/Hero";
 import Link from "next/link";
 import { CategoryStrip } from "@/components/CategoryStrip";
 import { ProductCard } from "@/components/ProductCard";
-import { products } from "@/lib/products";
+import { getLiveProducts } from "@/lib/catalog";
 import { TemplateCard } from "@/components/TemplateCard";
 import { KolamDivider } from "@/components/KolamDivider";
 import { AIAssistantWidget } from "@/components/AIAssistantWidget";
@@ -50,7 +50,10 @@ const MEMORY_SHOWCASE: Showcase[] = [
   { label: "Childhood", caption: "Playful, easy, unforgettable", icon: "paperPlane", accent: "#8FA876" },
 ];
 
-export default function HomePage() {
+export const revalidate = 300;
+
+export default async function HomePage() {
+  const products = await getLiveProducts();
   return (
     <>
       <Hero />

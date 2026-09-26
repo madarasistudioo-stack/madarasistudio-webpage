@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { products, CATEGORIES } from "@/lib/products";
+import { CATEGORIES } from "@/lib/products";
+import { getLiveProducts } from "@/lib/catalog";
 import { ProductListing } from "@/components/ProductListing";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { param, searchProducts, type SearchParams } from "@/lib/listing";
@@ -8,9 +9,9 @@ export const metadata = { title: "Search — Madarasi Studio" };
 
 const SUGGESTIONS = ["Wedding", "Goa", "Baby", "Mugs", "Frames", "Chennai", "Anniversary", "Friends"];
 
-export default function SearchPage({ searchParams }: { searchParams: SearchParams }) {
+export default async function SearchPage({ searchParams }: { searchParams: SearchParams }) {
   const query = (param(searchParams, "q") ?? "").trim();
-  const results = searchProducts(products, query);
+  const results = searchProducts(await getLiveProducts(), query);
 
   return (
     <div className="container-page py-8">

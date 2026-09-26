@@ -50,6 +50,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   orders        Order[]
+  blocked       Boolean   @default(false)
   createdAt     DateTime  @default(now())
 }
 
@@ -78,7 +79,7 @@ model PhoneOtp {
 model Order {
   id              String   @id @default(cuid())
   userId          String?
-  user            User?    @relation(fields: [userId], references: [id])
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   items           Json
   personalisation Json?
   totalPaise      Int
@@ -86,4 +87,28 @@ model Order {
   status          String   @default("created") // created | paid | failed
   razorpayOrderId String?
   createdAt       DateTime @default(now())
+}
+
+// Admin overrides layered on the code catalogue (src/lib/products.ts):
+// price changes, stock levels and hiding a product, without a redeploy.
+model ProductSetting {
+  slug      String   @id
+  price     Int?
+  compareAt Int?
+  stock     Int? // null = made to order (unlimited); 0 = sold out
+  hidden    Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+}
+
+// First-party analytics: page views, searches, add-to-bag and sign-ins.
+model Event {
+  id        String   @id @default(cuid())
+  type      String // pageview | add_to_cart | signin
+  path      String?
+  detail    String?
+  userId    String?
+  createdAt DateTime @default(now())
+
+  @@index([type, createdAt])
+  @@index([createdAt])
 }

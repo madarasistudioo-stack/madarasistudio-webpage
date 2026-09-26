@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { CATEGORIES, getCategory, productsInCategory } from "@/lib/products";
+import { CATEGORIES, getCategory } from "@/lib/products";
+import { getLiveProducts } from "@/lib/catalog";
 import { ProductListing } from "@/components/ProductListing";
 import { CategoryStrip } from "@/components/CategoryStrip";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -20,7 +21,7 @@ export function generateMetadata({ params }: { params: { category: string } }): 
     : {};
 }
 
-export default function CategoryPage({
+export default async function CategoryPage({
   params,
   searchParams,
 }: {
@@ -30,7 +31,8 @@ export default function CategoryPage({
   const category = getCategory(params.category);
   if (!category) notFound();
 
-  const list = productsInCategory(category.slug);
+  const list = (await getLiveProducts()).filter((p) => p.categorySlug === category.slug);
+  if (list.length === 0) notFound();
   const hero = list.find((p) => p.bestseller) ?? list[0];
   const lowest = Math.min(...list.map((p) => p.price));
 

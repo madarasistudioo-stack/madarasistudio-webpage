@@ -22,6 +22,7 @@ export function ProductCard({ product }: { product: Product }) {
         <div className="absolute left-2.5 top-2.5 flex flex-col gap-1">
           {product.bestseller && <Badge className="bg-pine text-ivory">Bestseller</Badge>}
           {product.isNew && <Badge className="bg-marigold text-pine">New</Badge>}
+          {(product as { stock?: number | null }).stock === 0 && <Badge className="bg-rust text-ivory">Sold out</Badge>}
         </div>
       </div>
 

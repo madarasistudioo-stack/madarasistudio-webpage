@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { track } from "@/components/Tracker";
 
 export type CartItem = {
   slug: string;
@@ -54,6 +55,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items, hydrated]);
 
   const addItem = (item: CartItem) => {
+    track("add_to_cart", `/product/${item.slug}`, item.name);
     setItems((prev) => {
       const key = lineKey(item);
       if (prev.some((i) => lineKey(i) === key)) {

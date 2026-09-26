@@ -227,6 +227,7 @@ function AccountMenu() {
             <p className="truncate text-sm text-pine">{user?.name ?? "Signed in"}</p>
             {user?.email && <p className="truncate text-xs text-pine/50">{user.email}</p>}
           </div>
+          {(user as { isAdmin?: boolean } | undefined)?.isAdmin && <MenuLink href="/admin">Admin dashboard</MenuLink>}
           <MenuLink href="/account">My account</MenuLink>
           <MenuLink href="/account/orders">My orders</MenuLink>
           <MenuLink href="/cart">My bag</MenuLink>

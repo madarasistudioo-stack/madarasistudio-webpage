@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getCategory, getProductBySlug, products, siblingsOf } from "@/lib/products";
+import { getCategory, getProductBySlug, products } from "@/lib/products";
+import { getLiveProduct, getLiveProducts } from "@/lib/catalog";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductConfigurator } from "@/components/ProductConfigurator";
@@ -15,13 +16,16 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   return product ? { title: `${product.name} ${product.kind} — Madarasi Studio`, description: product.blurb } : {};
 }
 
-export default function ProductPage({ params }: { params: { slug: string } }) {
-  const product = getProductBySlug(params.slug);
+export const revalidate = 60;
+
+export default async function ProductPage({ params }: { params: { slug: string } }) {
+  const product = await getLiveProduct(params.slug);
   if (!product) notFound();
+  const live = await getLiveProducts();
   const category = getCategory(product.categorySlug)!;
 
-  const set = siblingsOf(product);
-  const similar = products
+  const set = live.filter((p) => p.designId === product.designId && p.slug !== product.slug);
+  const similar = live
     .filter((p) => p.categorySlug === product.categorySlug && p.designId !== product.designId)
     .filter((p) => p.themes.some((t) => product.themes.includes(t)))
     .slice(0, 4);
@@ -38,7 +42,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
       />
 
       <div className="mt-6">
-        <ProductConfigurator slug={product.slug} />
+        <ProductConfigurator product={product} />
       </div>
 
       <section className="mt-16 grid gap-8 border-t border-mist pt-10 md:grid-cols-2">
