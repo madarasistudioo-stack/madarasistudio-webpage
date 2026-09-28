@@ -23,7 +23,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${manrope.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${manrope.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Apply the saved theme before first paint, so dark mode never flashes ivory. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem("madarasi-theme");if(t==="dark")document.documentElement.dataset.theme="dark"}catch(e){}`,
+          }}
+        />
+      </head>
       <body>
         <AuthProvider>
           <CartProvider>{children}</CartProvider>

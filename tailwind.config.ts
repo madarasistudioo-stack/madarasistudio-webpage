@@ -2,18 +2,21 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
+  darkMode: ["class", '[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {
-        // Core palette — a bright, pastel take on the same Madras materials.
-        ivory: "#F8F5EC", // half-white, the base background
-        cloud: "#FFFFFF", // raised panels/cards, sits on top of ivory
-        mist: "#DBD7C9", // light grey, borders & dividers
-        olive: "#5C6B3E", // olive green, primary accent
-        pine: "#3B4229", // deep olive, primary text on light backgrounds
-        rust: "#A6553D", // warm terracotta, errors & attention
-        marigold: "#E2A93D", // marigold, bright secondary accent
-        sage: "#8FA876", // sage leaf, tags & confirmations
+        // Core palette as theme tokens (values in globals.css). Ivory theme is
+        // the brand default; the dark theme swaps each role, not each hue:
+        // "ivory" is always the page background, "pine" always the main text.
+        ivory: "rgb(var(--c-ivory) / <alpha-value>)", // page background
+        cloud: "rgb(var(--c-cloud) / <alpha-value>)", // raised panels/cards
+        mist: "rgb(var(--c-mist) / <alpha-value>)", // borders & dividers
+        olive: "rgb(var(--c-olive) / <alpha-value>)", // primary accent
+        pine: "rgb(var(--c-pine) / <alpha-value>)", // primary text
+        rust: "rgb(var(--c-rust) / <alpha-value>)", // errors & attention
+        marigold: "rgb(var(--c-marigold) / <alpha-value>)", // bright secondary accent
+        sage: "rgb(var(--c-sage) / <alpha-value>)", // tags & confirmations
       },
       fontFamily: {
         display: ["var(--font-fraunces)", "Georgia", "serif"],

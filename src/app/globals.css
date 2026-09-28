@@ -3,13 +3,46 @@
 @tailwind utilities;
 
 @layer base {
+  /* Ivory — the brand default: bright pastel Madras. */
+  :root {
+    --c-ivory: 248 245 236;
+    --c-cloud: 255 255 255;
+    --c-mist: 219 215 201;
+    --c-olive: 92 107 62;
+    --c-pine: 59 66 41;
+    --c-rust: 166 85 61;
+    --c-marigold: 226 169 61;
+    --c-sage: 143 168 118;
+    --art-from: #ffffff;
+    --art-to: #f8f5ec;
+    --grain: rgba(59, 66, 41, 0.05);
+    color-scheme: light;
+  }
+
+  /* Dark — deep pine evenings, same roles with the lightness flipped. */
+  [data-theme="dark"] {
+    --c-ivory: 28 32 24;
+    --c-cloud: 38 43 33;
+    --c-mist: 62 69 53;
+    --c-olive: 172 190 135;
+    --c-pine: 239 235 221;
+    --c-rust: 221 142 116;
+    --c-marigold: 232 181 84;
+    --c-sage: 160 184 134;
+    --art-from: #2c3226;
+    --art-to: #20251c;
+    --grain: rgba(239, 235, 221, 0.04);
+    color-scheme: dark;
+  }
+
   html {
     scroll-behavior: smooth;
   }
 
   body {
     @apply bg-ivory text-pine font-body;
-    background-image: radial-gradient(circle at 1px 1px, rgba(59, 66, 41, 0.05) 1px, transparent 0);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    background-image: radial-gradient(circle at 1px 1px, var(--grain) 1px, transparent 0);
     background-size: 22px 22px;
   }
 
@@ -25,6 +58,12 @@
   *:focus-visible {
     outline: 2px solid #5c6b3e;
     outline-offset: 2px;
+  }
+}
+
+@keyframes shelf-drift {
+  to {
+    transform: translateX(-50%);
   }
 }
 

@@ -56,7 +56,7 @@ export default async function HomePage() {
   const products = await getLiveProducts();
   return (
     <>
-      <Hero />
+      <Hero products={products} />
 
       <section className="container-page py-8">
         <h2 className="mb-5 font-display text-2xl text-pine">Popular products</h2>

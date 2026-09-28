@@ -30,7 +30,7 @@ export function ProductArt({ kind, icon, color, palette, title, subtitle, classN
     <div
       className={cn("relative aspect-[4/5] overflow-hidden rounded-xl border border-mist", className)}
       style={{
-        background: `radial-gradient(110% 90% at 18% 12%, ${accent}33, transparent 60%), linear-gradient(165deg, #FFFFFF, ${IVORY})`,
+        background: `radial-gradient(110% 90% at 18% 12%, ${accent}33, transparent 60%), linear-gradient(165deg, var(--art-from), var(--art-to))`,
       }}
     >
       <div

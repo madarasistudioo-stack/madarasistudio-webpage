@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/components/CartProvider";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { CATEGORIES, CATEGORY_GROUPS, products } from "@/lib/products";
 import { OCCASIONS, PLACES, MEMORIES } from "@/lib/taxonomy";
 import { cn, slugify } from "@/lib/utils";
@@ -62,6 +63,7 @@ export function Navbar() {
           <Link href="/search" className="text-pine hover:text-olive md:hidden" aria-label="Search">
             <SearchIcon className="h-5 w-5" />
           </Link>
+          <ThemeToggle className="hidden sm:flex" />
           <AccountMenu />
           <Link href="/cart" className="relative text-pine transition-colors hover:text-olive" aria-label={`Bag, ${count} items`}>
             <BagIcon className="h-6 w-6" />
@@ -159,6 +161,9 @@ export function Navbar() {
                 </div>
               </details>
             ))}
+            <div className="mt-4 flex items-center justify-between border-t border-mist px-2 pt-3 text-sm text-pine/85 sm:hidden">
+              Dark theme <ThemeToggle />
+            </div>
             <div className="mt-4 border-t border-mist pt-3">
               <Link href="/about" className="block rounded px-2 py-2 text-sm text-pine/85 hover:bg-cloud">
                 Our story

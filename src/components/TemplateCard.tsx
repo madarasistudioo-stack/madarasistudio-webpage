@@ -23,7 +23,7 @@ export function TemplateCard({
       <div
         className="relative flex aspect-[4/5] items-center justify-center overflow-hidden"
         style={{
-          background: `radial-gradient(130% 130% at 15% 10%, ${accent}35, transparent 65%), linear-gradient(160deg, #FFFFFF, #F8F5EC)`,
+          background: `radial-gradient(130% 130% at 15% 10%, ${accent}35, transparent 65%), linear-gradient(160deg, var(--art-from), var(--art-to))`,
         }}
       >
         <div
