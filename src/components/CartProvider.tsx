@@ -12,6 +12,9 @@ export type CartItem = {
   size?: string;
   pageCount?: string;
   photos?: string[];
+  // Page-by-page placement from the book editor: which photo goes in which box.
+  pages?: { page: number; slot: number; url: string }[];
+  captions?: { page: number; text: string }[];
   personalisation?: string;
   quantity: number;
 };

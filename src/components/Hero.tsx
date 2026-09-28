@@ -2,11 +2,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { CATEGORIES, getCategory, type Product } from "@/lib/products";
 import { ProductArt } from "@/components/ProductArt";
+import { HeroRing } from "@/components/HeroRing";
 
 /**
- * The homepage hero: a giant serif wordmark over a 3D shelf of our own
- * illustrated products drifting past in perspective. Pure CSS motion —
- * it pauses on hover and stops for people who prefer reduced motion.
+ * The homepage hero: a giant serif wordmark over a full 3D ring of our own
+ * illustrated products that turns on its own and spins as the page scrolls.
  */
 export function Hero({ products }: { products: Product[] }) {
   const shelf = pickShelf(products);
@@ -32,44 +32,25 @@ export function Hero({ products }: { products: Product[] }) {
         </div>
       </div>
 
-      <div
-        className="group relative mt-12 h-[300px] overflow-hidden sm:h-[380px] motion-reduce:overflow-x-auto"
-        style={{
-          perspective: "1400px",
-          maskImage: "linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent)",
-          WebkitMaskImage: "linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent)",
-        }}
-      >
-        <div className="h-full" style={{ transform: "rotateX(8deg) rotateY(-16deg)", transformStyle: "preserve-3d", transformOrigin: "50% 50%" }}>
-          <div
-            className="flex h-full w-max items-center gap-3 px-6 animate-[shelf-drift_80s_linear_infinite] group-hover:[animation-play-state:paused] motion-reduce:animate-none"
-            style={{ transformStyle: "preserve-3d" }}
-          >
-            {[...shelf, ...shelf].map((p, i) => {
-              const category = getCategory(p.categorySlug)!;
-              return (
-                <Link
-                  key={`${p.slug}-${i}`}
-                  href={`/product/${p.slug}`}
-                  aria-hidden={i >= shelf.length}
-                  tabIndex={i >= shelf.length ? -1 : undefined}
-                  className="block w-36 shrink-0 transition-transform duration-500 ease-out hover:!translate-y-[-14px] sm:w-44"
-                  style={{ transform: "rotateY(24deg)", transformStyle: "preserve-3d" }}
-                >
-                  <ProductArt
-                    kind={category.art}
-                    icon={p.icon}
-                    color={p.colors[0].hex}
-                    palette={p.palette.map((c) => c.hex)}
-                    title={p.name}
-                    subtitle={p.kind}
-                    className="shadow-[0_24px_40px_-18px_rgba(0,0,0,0.45)]"
-                  />
-                </Link>
-              );
-            })}
-          </div>
-        </div>
+      <div className="mt-10">
+        <HeroRing>
+          {shelf.map((p) => {
+            const category = getCategory(p.categorySlug)!;
+            return (
+              <Link key={p.slug} href={`/product/${p.slug}`} draggable={false} className="block transition-transform duration-300 hover:-translate-y-3">
+                <ProductArt
+                  kind={category.art}
+                  icon={p.icon}
+                  color={p.colors[0].hex}
+                  palette={p.palette.map((c) => c.hex)}
+                  title={p.name}
+                  subtitle={p.kind}
+                  className="shadow-[0_24px_40px_-18px_rgba(0,0,0,0.45)]"
+                />
+              </Link>
+            );
+          })}
+        </HeroRing>
       </div>
 
       <div className="container-page mt-8 flex flex-wrap justify-center gap-2">

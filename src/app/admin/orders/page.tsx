@@ -3,7 +3,7 @@ import { formatRupees } from "@/lib/utils";
 import { setOrderStatus } from "../actions";
 
 const STATUSES = ["created", "paid", "printing", "shipped", "delivered", "cancelled", "refunded", "failed"];
-type Line = { name?: string; kind?: string; size?: string; quantity?: number };
+type Line = { name?: string; kind?: string; size?: string; quantity?: number; photos?: string[]; pages?: { page: number; slot: number; url: string }[]; personalisation?: string };
 
 export default async function OrdersAdmin({ searchParams }: { searchParams: { status?: string } }) {
   const orders = await prisma.order.findMany({
@@ -43,7 +43,18 @@ export default async function OrdersAdmin({ searchParams }: { searchParams: { st
                   </td>
                   <td className="py-3 text-xs text-pine/70">
                     {((Array.isArray(o.items) ? o.items : []) as Line[]).map((l, i) => (
-                      <p key={i}>{l.quantity ?? 1} × {l.name} {l.kind ? `(${l.kind}${l.size ? `, ${l.size}` : ""})` : ""}</p>
+                      <div key={i} className="mb-1">
+                        <p>{l.quantity ?? 1} × {l.name} {l.kind ? `(${l.kind}${l.size ? `, ${l.size}` : ""})` : ""}</p>
+                        {(l.photos?.length ?? 0) > 0 && (
+                          <p className="text-pine/45">
+                            {l.photos!.length} photo(s){l.pages?.length ? ` on ${new Set(l.pages.map((p) => p.page)).size} page(s)` : ""} ·{" "}
+                            {l.photos!.map((u, k) => (
+                              <a key={k} href={u} target="_blank" rel="noreferrer" className="text-olive hover:underline">#{k + 1} </a>
+                            ))}
+                          </p>
+                        )}
+                        {l.personalisation && <p className="text-pine/45">“{l.personalisation}”</p>}
+                      </div>
                     ))}
                   </td>
                   <td className="py-3 text-pine">{formatRupees(o.totalPaise / 100)}<p className="text-xs uppercase text-pine/45">{o.paymentMethod}{o.paymentRef ? ` · ${o.paymentRef}` : ""}</p></td>

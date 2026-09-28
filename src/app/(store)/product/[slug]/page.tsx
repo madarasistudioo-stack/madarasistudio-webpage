@@ -6,6 +6,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductConfigurator } from "@/components/ProductConfigurator";
 import { FAQS } from "@/lib/giftFinder";
+import { Reveal } from "@/components/Reveal";
 
 export function generateStaticParams() {
   return products.map((p) => ({ slug: p.slug }));
@@ -45,7 +46,8 @@ export default async function ProductPage({ params }: { params: { slug: string }
         <ProductConfigurator product={product} />
       </div>
 
-      <section className="mt-16 grid gap-8 border-t border-mist pt-10 md:grid-cols-2">
+      <Reveal>
+<section className="mt-16 grid gap-8 border-t border-mist pt-10 md:grid-cols-2">
         <div>
           <h2 className="font-display text-xl text-pine">About this design</h2>
           <p className="mt-3 text-pine/70">{product.description}</p>
@@ -71,9 +73,11 @@ export default async function ProductPage({ params }: { params: { slug: string }
           ))}
         </div>
       </section>
+</Reveal>
 
       {set.length > 0 && (
-        <section className="mt-16">
+        <Reveal>
+<section className="mt-16">
           <h2 className="font-display text-2xl text-pine">Complete the {product.name} set</h2>
           <p className="mt-1 text-sm text-pine/55">The same design, on other things worth giving.</p>
           <div className="mt-6 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
@@ -82,10 +86,12 @@ export default async function ProductPage({ params }: { params: { slug: string }
             ))}
           </div>
         </section>
+</Reveal>
       )}
 
       {similar.length > 0 && (
-        <section className="mt-16">
+        <Reveal>
+<section className="mt-16">
           <h2 className="font-display text-2xl text-pine">More {category.name.toLowerCase()} you might like</h2>
           <div className="mt-6 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
             {similar.map((p) => (
@@ -93,6 +99,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
             ))}
           </div>
         </section>
+</Reveal>
       )}
     </div>
   );

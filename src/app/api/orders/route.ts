@@ -27,8 +27,8 @@ export async function POST(req: Request) {
   const order = await prisma.order.create({
     data: {
       userId: (session?.user as { id?: string } | undefined)?.id ?? null,
-      items: lines.map(({ slug, name, kind, color, size, pageCount, photos, personalisation, quantity, unitPrice }) => ({
-        slug, name, kind, color, size, pageCount, photos, personalisation, quantity, unitPrice,
+      items: lines.map(({ slug, name, kind, color, size, pageCount, photos, pages, captions, personalisation, quantity, unitPrice }) => ({
+        slug, name, kind, color, size, pageCount, photos, pages, captions, personalisation, quantity, unitPrice,
       })),
       totalPaise,
       paymentMethod: payWith,

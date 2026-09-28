@@ -1,12 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { getCategory, type OptionChoice } from "@/lib/products";
 import type { LiveProduct } from "@/lib/catalog";
 import { getQuoteSuggestions } from "@/lib/quotes";
 import { cn, formatRupees } from "@/lib/utils";
-import { ProductArt } from "@/components/ProductArt";
+import { ProductGallery } from "@/components/ProductGallery";
+import { BookEditor, type BookContent } from "@/components/BookEditor";
+import { Reveal } from "@/components/Reveal";
+import type { SpreadTheme } from "@/components/TemplateSpread";
 import { ColorSwatches } from "@/components/ColorSwatches";
 import { PhotoTemplatePicker, layoutForCollection, type PhotoSlot } from "@/components/PhotoTemplatePicker";
 import { AIAssistantWidget } from "@/components/AIAssistantWidget";
@@ -25,12 +28,24 @@ export function ProductConfigurator({ product }: { product: LiveProduct }) {
   const [quantity, setQuantity] = useState(1);
   const [showAssistant, setShowAssistant] = useState(false);
   const [added, setAdded] = useState(false);
+  const [book, setBook] = useState<BookContent>({ pages: [], captions: [], uploading: false });
+  const onBookChange = useCallback((c: BookContent) => setBook(c), []);
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  // Photobooks and calendars are designed page by page; everything else uses the simple picker.
+  const editorMode = art === "book" ? "photobook" : art === "calendar" ? "calendar" : null;
+  const bookPages = editorMode === "calendar" ? 12 : Number(pages?.id ?? 30);
+  const theme: SpreadTheme = product.themes.includes("Travel & Holidays")
+    ? "place"
+    : product.themes.some((t) => t === "Couples & Wedding" || t === "Family & Generations" || t === "Baby & Early Years")
+      ? "memory"
+      : "occasion";
 
   const delta = size.priceDelta + (pages?.priceDelta ?? 0);
   const price = product.price + delta;
   const slotCount = size.photoSlots ?? options.photoSlots;
-  const ready = photos.filter((p) => p.status === "ready");
-  const uploading = photos.some((p) => p.status === "uploading");
+  const ready = editorMode ? book.pages.map((p) => ({ url: p.url })) : photos.filter((p) => p.status === "ready");
+  const uploading = editorMode ? book.uploading : photos.some((p) => p.status === "uploading");
   const quotes = useMemo(() => getQuoteSuggestions(product.primaryCollection), [product.primaryCollection]);
 
   function add() {
@@ -43,6 +58,8 @@ export function ProductConfigurator({ product }: { product: LiveProduct }) {
       size: `${size.label} (${size.dimensions})`,
       pageCount: pages?.label,
       photos: ready.map((p) => p.url as string),
+      pages: editorMode ? book.pages : undefined,
+      captions: editorMode ? book.captions : undefined,
       personalisation: text || undefined,
       quantity,
     });
@@ -51,15 +68,19 @@ export function ProductConfigurator({ product }: { product: LiveProduct }) {
   }
 
   return (
+    <>
     <div className="grid gap-10 lg:grid-cols-2">
       <div className="lg:sticky lg:top-36 lg:self-start">
-        <ProductArt
-          kind={art}
+        <ProductGallery
+          art={art}
           icon={product.icon}
-          color={color.hex}
           palette={product.palette.map((c) => c.hex)}
+          colors={product.colors}
+          selected={color}
           title={text && art !== "book" ? text : product.name}
           subtitle={product.kind}
+          theme={theme}
+          showSpreads={art === "book"}
         />
       </div>
 
@@ -79,7 +100,21 @@ export function ProductConfigurator({ product }: { product: LiveProduct }) {
         <Choices title={options.sizeLabel} options={options.sizes} selected={size} onSelect={setSize} />
         {options.pages && pages && <Choices title="Pages" options={options.pages} selected={pages} onSelect={setPages} />}
 
-        {slotCount > 0 && (
+        {editorMode && (
+          <button
+            type="button"
+            onClick={() => editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            className="mt-6 flex w-full max-w-md items-center justify-between rounded-md border border-olive bg-olive/10 px-4 py-3 text-left text-sm text-pine hover:bg-olive/15"
+          >
+            <span>
+              <span className="block font-medium">Start creating</span>
+              <span className="text-xs text-pine/60">{book.pages.length > 0 ? `${book.pages.length} photos placed so far` : "Design every page — add photos right into each box"}</span>
+            </span>
+            <span aria-hidden>↓</span>
+          </button>
+        )}
+
+        {!editorMode && slotCount > 0 && (
           <div className="mt-6 max-w-md">
             <PhotoTemplatePicker
               slotCount={slotCount}
@@ -150,9 +185,25 @@ export function ProductConfigurator({ product }: { product: LiveProduct }) {
         </Link>
       </div>
     </div>
+
+    {editorMode && (
+      <section ref={editorRef} className="mt-16 scroll-mt-32 border-t border-mist pt-10">
+        <Reveal>
+          <h2 className="font-display text-2xl text-pine">{editorMode === "calendar" ? "Design your calendar" : "Design your pages"}</h2>
+          <p className="mt-1 text-sm text-pine/55">
+            {editorMode === "calendar"
+              ? "One photo for each month. Turn the pages to move through the year."
+              : `Your ${bookPages}-page book, spread by spread. Every page has its own photo boxes — change the page count above and the book grows with it.`}
+          </p>
+          <div className="mt-6">
+            <BookEditor mode={editorMode} pageCount={bookPages} title={text || product.name} coverColor={color.hex} accent={product.palette[1]?.hex ?? product.palette[0].hex} onChange={onBookChange} />
+          </div>
+        </Reveal>
+      </section>
+    )}
+    </>
   );
 }
-
 function Choices({
   title,
   options,

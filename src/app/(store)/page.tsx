@@ -3,6 +3,8 @@ import Link from "next/link";
 import { CategoryStrip } from "@/components/CategoryStrip";
 import { ProductCard } from "@/components/ProductCard";
 import { getLiveProducts } from "@/lib/catalog";
+import type { Product } from "@/lib/products";
+import { Reveal } from "@/components/Reveal";
 import { TemplateCard } from "@/components/TemplateCard";
 import { KolamDivider } from "@/components/KolamDivider";
 import { AIAssistantWidget } from "@/components/AIAssistantWidget";
@@ -60,7 +62,9 @@ export default async function HomePage() {
 
       <section className="container-page py-8">
         <h2 className="mb-5 font-display text-2xl text-pine">Popular products</h2>
-        <CategoryStrip />
+        <Reveal>
+          <CategoryStrip />
+        </Reveal>
       </section>
 
       <section className="container-page py-10">
@@ -69,20 +73,23 @@ export default async function HomePage() {
           <Link href="/shop" className="text-sm text-olive hover:underline">Shop all designs</Link>
         </div>
         <div className="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
-          {products.filter((p) => p.bestseller).slice(0, 8).map((p) => (
-            <ProductCard key={p.slug} product={p} />
+          {products.filter((p) => p.bestseller).slice(0, 8).map((p, i) => (
+            <Reveal key={p.slug} delay={(i % 4) * 90}>
+              <ProductCard product={p} />
+            </Reveal>
           ))}
         </div>
       </section>
 
-      <ShowcaseSection title="Shop by occasion" type="occasion" items={OCCASION_SHOWCASE} />
-      <ShowcaseSection title="Shop by place" type="place" items={PLACE_SHOWCASE} />
-      <ShowcaseSection title="Shop by memory" type="memory" items={MEMORY_SHOWCASE} />
+      <ShowcaseSection title="Shop by occasion" type="occasion" items={OCCASION_SHOWCASE} products={products} />
+      <ShowcaseSection title="Shop by place" type="place" items={PLACE_SHOWCASE} products={products} />
+      <ShowcaseSection title="Shop by memory" type="memory" items={MEMORY_SHOWCASE} products={products} />
 
       <section className="container-page py-6">
         <KolamDivider animate />
       </section>
 
+      <Reveal>
       <section className="container-page grid gap-8 py-14 lg:grid-cols-[1fr_1.2fr] lg:items-center">
         <div>
           <h2 className="font-display text-2xl text-pine">Ask your Madarasi!</h2>
@@ -94,7 +101,9 @@ export default async function HomePage() {
         </div>
         <AIAssistantWidget variant="inline" />
       </section>
+      </Reveal>
 
+      <Reveal>
       <section className="container-page py-14">
         <h2 className="font-display text-2xl text-pine">Written into every page</h2>
         <div className="mt-8 grid gap-8 sm:grid-cols-3">
@@ -107,7 +116,9 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+      </Reveal>
 
+      <Reveal>
       <section className="container-page py-14">
         <KolamDivider />
         <div className="mt-10 grid gap-8 sm:grid-cols-2">
@@ -121,6 +132,7 @@ export default async function HomePage() {
           />
         </div>
       </section>
+      </Reveal>
     </>
   );
 }
@@ -129,24 +141,43 @@ function ShowcaseSection({
   title,
   type,
   items,
+  products,
 }: {
   title: string;
   type: "occasion" | "place" | "memory";
   items: Showcase[];
+  products: Product[];
 }) {
+  // Colour each template with a real design from that collection.
+  const paletteFor = (label: string, accent: string) => {
+    const match = products.find((p) =>
+      type === "occasion" ? p.taxonomyOccasions.includes(label as never) : type === "place" ? p.places.includes(label as never) : p.memoryTypes.includes(label as never)
+    );
+    return match ? match.palette.map((c) => c.hex) : [accent, "#E2A93D", "#8FA876"];
+  };
   return (
     <section className="container-page py-10">
-      <h2 className="mb-6 font-display text-2xl text-pine">{title}</h2>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {items.map((item) => (
-          <TemplateCard
-            key={item.label}
-            label={item.label}
-            caption={item.caption}
-            icon={item.icon}
-            accent={item.accent}
-            href={`/collections/${type}/${slugify(item.label)}`}
-          />
+      <Reveal>
+        <div className="mb-6 flex items-end justify-between">
+          <h2 className="font-display text-2xl text-pine">{title}</h2>
+          <Link href={`/collections/${type}/${slugify(items[0].label)}`} className="text-sm text-olive hover:underline">
+            See all
+          </Link>
+        </div>
+      </Reveal>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {items.map((item, i) => (
+          <Reveal key={item.label} delay={i * 90}>
+            <TemplateCard
+              label={item.label}
+              caption={item.caption}
+              icon={item.icon}
+              palette={paletteFor(item.label, item.accent)}
+              theme={type}
+              variant={i}
+              href={`/collections/${type}/${slugify(item.label)}`}
+            />
+          </Reveal>
         ))}
       </div>
     </section>

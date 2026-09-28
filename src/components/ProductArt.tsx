@@ -291,7 +291,7 @@ function MagnetsScene({ icon, color, palette, accent, title }: SceneProps) {
 // --- Building blocks --------------------------------------------------------
 
 // A little illustrated "photo": sky, sun, horizon, and the design's motif.
-function PhotoScene({
+export function PhotoScene({
   x,
   y,
   w,
@@ -325,7 +325,7 @@ function PhotoScene({
   );
 }
 
-function Motif({ icon, cx, cy, size, color }: { icon: IconName; cx: number; cy: number; size: number; color: string }) {
+export function Motif({ icon, cx, cy, size, color }: { icon: IconName; cx: number; cy: number; size: number; color: string }) {
   const Icon = ICONS[icon];
   return (
     <svg x={cx - size / 2} y={cy - size / 2} width={size} height={size} overflow="visible">
@@ -381,7 +381,7 @@ function DotRow({ x1, x2, y, color }: { x1: number; x2: number; y: number; color
 }
 
 // A thin looping kolam line traced around a rectangle.
-function KolamBorder({ x, y, w, h, color }: { x: number; y: number; w: number; h: number; color: string }) {
+export function KolamBorder({ x, y, w, h, color }: { x: number; y: number; w: number; h: number; color: string }) {
   const loop = 14;
   const along = (len: number) => Math.max(2, Math.round(len / loop));
   const edge = (x0: number, y0: number, x1: number, y1: number) => {
@@ -421,7 +421,7 @@ function toHex([r, g, b]: [number, number, number]) {
 }
 
 // Positive amounts lighten towards white, negative darken towards black.
-function shade(hex: string, amount: number) {
+export function shade(hex: string, amount: number) {
   const rgb = parse(hex);
   return toHex(rgb.map((v) => (amount >= 0 ? v + (255 - v) * amount : v * (1 + amount))) as [number, number, number]);
 }
@@ -438,7 +438,7 @@ function luminance(hex: string) {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-function inkOn(hex: string) {
+export function inkOn(hex: string) {
   return luminance(hex) > 0.36 ? PINE : IVORY;
 }
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCategory, type Product } from "@/lib/products";
 import { formatRupees } from "@/lib/utils";
 import { ProductArt } from "@/components/ProductArt";
+import { Tilt } from "@/components/Tilt";
 
 export function ProductCard({ product }: { product: Product }) {
   const category = getCategory(product.categorySlug)!;
@@ -9,7 +10,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link href={`/product/${product.slug}`} className="group block">
-      <div className="relative">
+      <Tilt className="relative">
         <ProductArt
           kind={category.art}
           icon={product.icon}
@@ -24,7 +25,7 @@ export function ProductCard({ product }: { product: Product }) {
           {product.isNew && <Badge className="bg-marigold text-pine">New</Badge>}
           {(product as { stock?: number | null }).stock === 0 && <Badge className="bg-rust text-ivory">Sold out</Badge>}
         </div>
-      </div>
+      </Tilt>
 
       <div className="mt-3 text-center">
         <h3 className="font-display text-base leading-snug text-pine group-hover:text-olive">{product.name}</h3>

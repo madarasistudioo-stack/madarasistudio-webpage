@@ -1,50 +1,33 @@
 import Link from "next/link";
-import { ICONS, type IconName } from "@/components/Icons";
+import type { IconName } from "@/components/Icons";
+import { TemplateSpread, type SpreadTheme } from "@/components/TemplateSpread";
+import { Tilt } from "@/components/Tilt";
 
 export function TemplateCard({
   label,
   caption,
   icon,
-  accent,
-  href = "/shop",
+  palette,
+  theme,
+  variant,
+  href,
 }: {
   label: string;
   caption: string;
   icon: IconName;
-  accent: string;
-  href?: string;
+  palette: string[];
+  theme: SpreadTheme;
+  variant: number;
+  href: string;
 }) {
-  const Icon = ICONS[icon];
   return (
-    <Link
-      href={href}
-      className="group block overflow-hidden rounded-xl border border-mist bg-cloud transition-transform hover:-translate-y-0.5"
-    >
-      <div
-        className="relative flex aspect-[4/5] items-center justify-center overflow-hidden"
-        style={{
-          background: `radial-gradient(130% 130% at 15% 10%, ${accent}35, transparent 65%), linear-gradient(160deg, var(--art-from), var(--art-to))`,
-        }}
-      >
-        <div
-          className="absolute inset-0 opacity-[0.10]"
-          style={{
-            backgroundImage: "radial-gradient(circle at 1px 1px, rgba(59,66,41,0.9) 1px, transparent 0)",
-            backgroundSize: "16px 16px",
-          }}
-        />
-        <Icon
-          className="h-16 w-16 transition-transform duration-200 group-hover:scale-110"
-          style={{ color: accent }}
-        />
-        <div
-          className="absolute -bottom-3 -right-3 h-16 w-16 rounded-full opacity-30"
-          style={{ background: accent }}
-        />
-      </div>
-      <div className="p-3">
-        <p className="font-display text-sm text-pine">{label}</p>
-        <p className="text-xs text-pine/50">{caption}</p>
+    <Link href={href} className="group block">
+      <Tilt className="overflow-hidden rounded-xl border border-mist bg-[linear-gradient(165deg,var(--art-from),var(--art-to))] p-3 group-hover:shadow-[0_18px_40px_-18px_rgba(0,0,0,0.35)]">
+        <TemplateSpread title={label} icon={icon} palette={palette} theme={theme} variant={variant} className="w-full" />
+      </Tilt>
+      <div className="mt-3">
+        <p className="font-display text-base text-pine group-hover:text-olive">{label}</p>
+        <p className="text-xs text-pine/55">{caption}</p>
       </div>
     </Link>
   );

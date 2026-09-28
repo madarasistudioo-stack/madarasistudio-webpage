@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CATEGORIES, productsInCategory, type CategorySlug } from "@/lib/products";
 import { ProductArt } from "@/components/ProductArt";
+import { Tilt } from "@/components/Tilt";
 import { cn } from "@/lib/utils";
 
 /** A scrollable row of every category, each drawn with its own best-known design. */
@@ -17,6 +18,7 @@ export function CategoryStrip({ current, size = "md" }: { current?: CategorySlug
             aria-current={active ? "page" : undefined}
             className={cn("group shrink-0 text-center", size === "sm" ? "w-24 sm:w-28" : "w-32 sm:w-36")}
           >
+            <Tilt max={14}>
             <ProductArt
               kind={c.art}
               icon={cover.icon}
@@ -28,6 +30,7 @@ export function CategoryStrip({ current, size = "md" }: { current?: CategorySlug
                 active && "ring-2 ring-olive ring-offset-2 ring-offset-ivory"
               )}
             />
+            </Tilt>
             <span className={cn("mt-2 block text-sm", active ? "font-medium text-olive" : "text-pine group-hover:text-olive")}>
               {c.name}
             </span>

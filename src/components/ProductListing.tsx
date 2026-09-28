@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Product } from "@/lib/products";
 import { ProductCard } from "@/components/ProductCard";
+import { Reveal } from "@/components/Reveal";
 import {
   FILTERS,
   SORTS,
@@ -153,8 +154,10 @@ export function ProductListing({
 
       {shown.length > 0 ? (
         <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
-          {shown.map((p) => (
-            <ProductCard key={p.slug} product={p} />
+          {shown.map((p, i) => (
+            <Reveal key={p.slug} delay={(i % 4) * 80}>
+              <ProductCard product={p} />
+            </Reveal>
           ))}
         </div>
       ) : (
