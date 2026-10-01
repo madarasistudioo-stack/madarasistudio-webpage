@@ -1,4 +1,8 @@
+"use client";
+
+import { Suspense, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import type { Product } from "@/lib/products";
 import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
@@ -16,26 +20,44 @@ import {
 } from "@/lib/listing";
 import { cn } from "@/lib/utils";
 
+type ListingProps = {
+  products: Product[];
+  basePath: string;
+  locked?: FilterKey[]; // filters implied by the page itself (e.g. the category on /shop/frames)
+  emptyMessage?: string;
+  keep?: string[]; // params that "Clear all" must preserve, e.g. the search query
+};
+
+const PAGE_SIZE = 24;
+
 /**
  * The shared shop grid: theme chips, a filter panel, sort, a result count and
- * the product cards. Filters live in the URL, so this stays a server component
- * and every filtered view is a plain, shareable link.
+ * the product cards. Filters live in the URL (shareable links) but are applied
+ * in the browser, so shop pages stay pre-built and cached — no server work per
+ * visit. The unfiltered grid is what's served first.
  */
-export function ProductListing({
+export function ProductListing(props: ListingProps) {
+  return (
+    <Suspense fallback={<ListingView {...props} searchParams={{}} />}>
+      <ListingFromUrl {...props} />
+    </Suspense>
+  );
+}
+
+function ListingFromUrl(props: ListingProps) {
+  const params = useSearchParams();
+  return <ListingView {...props} searchParams={Object.fromEntries(params.entries())} />;
+}
+
+function ListingView({
   products,
   basePath,
   searchParams,
   locked = [],
   emptyMessage = "Nothing matches those filters yet.",
   keep = [],
-}: {
-  products: Product[];
-  basePath: string;
-  searchParams: SearchParams;
-  locked?: FilterKey[]; // filters implied by the page itself (e.g. the category on /shop/frames)
-  emptyMessage?: string;
-  keep?: string[]; // params that "Clear all" must preserve, e.g. the search query
-}) {
+}: ListingProps & { searchParams: SearchParams }) {
+  const [limit, setLimit] = useState(PAGE_SIZE);
   const active = activeFilters(searchParams, locked);
   const sort = param(searchParams, "sort") ?? "featured";
   const shown = sortProducts(applyFilters(products, active), sort);
@@ -88,7 +110,7 @@ export function ProductListing({
                         {f.available.map((o) => (
                           <Link
                             key={o.slug}
-                            href={hrefWith(basePath, searchParams, { [f.key]: current === o.slug ? undefined : o.slug })}
+                            rel="nofollow" href={hrefWith(basePath, searchParams, { [f.key]: current === o.slug ? undefined : o.slug })}
                             className={cn(
                               "rounded-full border px-2.5 py-1 text-xs transition-colors",
                               current === o.slug
@@ -117,7 +139,7 @@ export function ProductListing({
             {SORTS.map((s) => (
               <Link
                 key={s.id}
-                href={hrefWith(basePath, searchParams, { sort: s.id === "featured" ? undefined : s.id })}
+                rel="nofollow" href={hrefWith(basePath, searchParams, { sort: s.id === "featured" ? undefined : s.id })}
                 className={cn(
                   "block rounded-md px-3 py-2 text-sm",
                   s.id === sort ? "bg-olive/10 text-pine" : "text-pine/70 hover:bg-ivory hover:text-pine"
@@ -139,14 +161,14 @@ export function ProductListing({
           {active.map((a) => (
             <Link
               key={a.key}
-              href={hrefWith(basePath, searchParams, { [a.key]: undefined })}
+              rel="nofollow" href={hrefWith(basePath, searchParams, { [a.key]: undefined })}
               className="flex items-center gap-1.5 rounded-full bg-olive/10 px-3 py-1 text-pine hover:bg-olive/20"
             >
               <span className="text-pine/50">{a.title}:</span> {a.label} <span aria-hidden>✕</span>
               <span className="sr-only">Remove filter</span>
             </Link>
           ))}
-          <Link href={clearHref} className="text-pine/50 underline-offset-2 hover:text-olive hover:underline">
+          <Link rel="nofollow" href={clearHref} className="text-pine/50 underline-offset-2 hover:text-olive hover:underline">
             Clear all
           </Link>
         </div>
@@ -154,16 +176,28 @@ export function ProductListing({
 
       {shown.length > 0 ? (
         <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
-          {shown.map((p, i) => (
+          {shown.slice(0, limit).map((p, i) => (
             <Reveal key={p.slug} delay={(i % 4) * 80}>
               <ProductCard product={p} />
             </Reveal>
           ))}
         </div>
-      ) : (
+      ) : null}
+      {shown.length > limit && (
+        <div className="mt-10 text-center">
+          <button
+            type="button"
+            onClick={() => setLimit((l) => l + PAGE_SIZE)}
+            className="rounded-full border border-mist px-6 py-2.5 text-sm text-pine hover:border-olive"
+          >
+            Show more ({shown.length - limit} left)
+          </button>
+        </div>
+      )}
+      {shown.length === 0 && (
         <div className="mt-10 rounded-xl border border-mist bg-cloud p-10 text-center">
           <p className="text-pine/70">{emptyMessage}</p>
-          <Link href={clearHref} className="mt-3 inline-block text-sm text-olive hover:underline">
+          <Link rel="nofollow" href={clearHref} className="mt-3 inline-block text-sm text-olive hover:underline">
             Clear filters
           </Link>
         </div>
@@ -176,6 +210,7 @@ function Chip({ href, active, children }: { href: string; active: boolean; child
   return (
     <Link
       href={href}
+      rel="nofollow"
       scroll={false}
       className={cn(
         "shrink-0 rounded-full border px-4 py-1.5 text-sm transition-colors",

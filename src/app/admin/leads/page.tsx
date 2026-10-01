@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils";
 
 const STATUSES = ["new", "contacted", "converted", "unsubscribed"];
 
-export default async function LeadsPage({ searchParams }: { searchParams: { status?: string } }) {
+export default async function LeadsPage(props: { searchParams: Promise<{ status?: string }> }) {
+  const searchParams = await props.searchParams;
   const status = STATUSES.includes(searchParams.status ?? "") ? searchParams.status : undefined;
   const [leads, counts] = await Promise.all([
     prisma.lead.findMany({ where: status ? { status } : undefined, orderBy: { createdAt: "desc" }, take: 300 }),

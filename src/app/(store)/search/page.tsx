@@ -9,7 +9,8 @@ export const metadata = { title: "Search — Madarasi Studio" };
 
 const SUGGESTIONS = ["Wedding", "Goa", "Baby", "Mugs", "Frames", "Chennai", "Anniversary", "Friends"];
 
-export default async function SearchPage({ searchParams }: { searchParams: SearchParams }) {
+export default async function SearchPage(props: { searchParams: Promise<SearchParams> }) {
+  const searchParams = await props.searchParams;
   const query = (param(searchParams, "q") ?? "").trim();
   const results = searchProducts(await getLiveProducts(), query);
 
@@ -40,7 +41,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
 
       {results.length > 0 ? (
         <div className="mt-6">
-          <ProductListing products={results} basePath="/search" searchParams={searchParams} keep={["q"]} />
+          <ProductListing products={results} basePath="/search" keep={["q"]} />
         </div>
       ) : (
         <div className="mt-6">

@@ -5,7 +5,8 @@ import { setOrderStatus } from "../actions";
 const STATUSES = ["created", "paid", "printing", "shipped", "delivered", "cancelled", "refunded", "failed"];
 type Line = { name?: string; kind?: string; size?: string; quantity?: number; photos?: string[]; pages?: { page: number; slot: number; url: string }[]; personalisation?: string };
 
-export default async function OrdersAdmin({ searchParams }: { searchParams: { status?: string } }) {
+export default async function OrdersAdmin(props: { searchParams: Promise<{ status?: string }> }) {
+  const searchParams = await props.searchParams;
   const orders = await prisma.order.findMany({
     where: searchParams.status ? { status: searchParams.status } : undefined,
     orderBy: { createdAt: "desc" },

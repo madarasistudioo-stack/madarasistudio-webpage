@@ -49,7 +49,7 @@ export function ProductArt({ kind, icon, color, palette, title, subtitle, classN
 
 type SceneProps = { icon: IconName; color: string; palette: string[]; accent: string; title: string; subtitle?: string };
 
-const SCENES: Record<ArtKind, (p: SceneProps) => JSX.Element> = {
+const SCENES: Record<ArtKind, (p: SceneProps) => React.JSX.Element> = {
   book: BookScene,
   journal: JournalScene,
   planner: PlannerScene,

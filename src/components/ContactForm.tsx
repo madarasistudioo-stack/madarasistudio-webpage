@@ -1,12 +1,13 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { contact } from "@/lib/publicActions";
 
 const input = "mt-1 w-full rounded-md border border-mist bg-cloud px-3 py-2 text-sm text-pine focus:border-olive";
 
 export function ContactForm() {
-  const [state, action] = useFormState(contact, null);
+  const [state, action] = useActionState(contact, null);
   if (state?.ok) return <p className="rounded-xl border border-mist bg-cloud p-6 text-pine">{state.message}</p>;
   return (
     <form action={action} className="space-y-4">

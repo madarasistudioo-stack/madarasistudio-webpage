@@ -51,20 +51,33 @@ data).
   kept as a read-only backup (git remote `old-origin`). The local Mac pushes
   as GitHub user **`cxentric-guy`** (a collaborator on the new repo), which
   is a different account from `cxentric`, so don't mix the two up.
-- Vercel project: `madarasistudio-webpage`, team `madarasistudioo-8629`,
-  Hobby plan (the old `madarasistudio-xlsx` project is retired). Vercel runs
-  the `vercel-build` script, which does `prisma db push` before `next build`,
-  so schema changes reach the Neon database on every deploy.
-- Local builds: the project folder is on the iCloud-synced Desktop, which
-  makes `next build` crawl. `node_modules` is a symlink to
-  `node_modules.nosync` for this reason. `.env.production.local` holds
-  `[SENSITIVE]` placeholders and breaks local builds — build without it.
-- Custom domain: `www.madarasistudio.com` (already connected and live)
-- Local clone lives on the owner's Mac mini, under
-  `~/Desktop/Madarasistudio/files (3)/madarasi-studio`
-- Local environment: macOS, Node v24.20.0, npm 11.19.0, running inside a
-  Conda `base` environment — if `npm`/`npx`/`node` seem to vanish from PATH,
-  check Conda activation first before assuming a fresh install is needed
+- Hosting: **Cloudflare Workers (free plan)** via OpenNext (`@opennextjs/cloudflare`),
+  connected to GitHub through Workers Builds; build command `npm run cf-build`
+  (runs `prisma db push` then the OpenNext build), deploy `npx opennextjs-cloudflare deploy`.
+  Config: `wrangler.jsonc`, `open-next.config.ts`. DNS for madarasistudio.com is on
+  Cloudflare (moved from GoDaddy in Oct 2026; domain still registered at GoDaddy).
+- Moved off Vercel in Oct 2026: the Hobby plan paused the site after exceeding
+  Fast Origin Transfer (18 GB / 10 GB) and Active CPU, caused by uncached,
+  server-rendered shop pages being crawled through endless filter URLs.
+  **Keep shop pages static** (filters run in the browser), keep `robots.ts`
+  blocking `/*?`, and don't reintroduce per-request rendering for public pages.
+  Vercel's Hobby plan is also non-commercial only.
+- Pages are pre-built per deploy (static-assets incremental cache, no ISR).
+  Admin inventory edits save to the DB immediately (checkout uses them) and
+  reach the shop pages via Admin → Inventory → **Publish to website**, which
+  POSTs the Cloudflare deploy hook in `DEPLOY_HOOK_URL`.
+- Free-plan limits to respect: Worker ≤ 3 MB gzipped (currently ~1.9 MB),
+  ~10 ms CPU per request, KV 1 GB / 1,000 writes a day.
+- Customer photos: Cloudflare KV namespace bound as `PHOTOS` (resized to
+  2400px in the browser before upload), served from `/api/photo/...`.
+- Email: Resend HTTP API (`src/lib/mailer.ts`, key in `EMAIL_SERVER_PASSWORD`
+  or `RESEND_API_KEY`) — Workers can't do SMTP.
+- Database: Neon Postgres via Prisma 6 with `@prisma/adapter-neon` and the
+  Rust-free client (`engineType = "client"`).
+- **Local copy lives at `~/Projects/madarasi-studio`** — NOT on the Desktop,
+  which is iCloud-synced (iCloud filled up and created `node_modules 2`
+  conflict copies). Never put the project or `node_modules` back under
+  Desktop/Documents.
 
 ## Cost consciousness — important
 

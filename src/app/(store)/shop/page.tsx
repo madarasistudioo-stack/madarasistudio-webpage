@@ -1,19 +1,11 @@
-import { redirect } from "next/navigation";
-import { getCategoryByName } from "@/lib/products";
 import { getLiveProducts } from "@/lib/catalog";
 import { ProductListing } from "@/components/ProductListing";
 import { CategoryStrip } from "@/components/CategoryStrip";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { param, type SearchParams } from "@/lib/listing";
 
 export const metadata = { title: "Shop all designs — Madarasi Studio" };
 
-export default async function ShopPage({ searchParams }: { searchParams: SearchParams }) {
-  // Old links used /shop?category=Photobooks — send them to the category page.
-  const legacy = param(searchParams, "category");
-  const legacyCategory = legacy ? getCategoryByName(legacy) : undefined;
-  if (legacyCategory) redirect(`/shop/${legacyCategory.slug}`);
-
+export default async function ShopPage() {
   const products = await getLiveProducts();
 
   return (
@@ -29,7 +21,7 @@ export default async function ShopPage({ searchParams }: { searchParams: SearchP
       </div>
 
       <div className="mt-8">
-        <ProductListing products={products} basePath="/shop" searchParams={searchParams} />
+        <ProductListing products={products} basePath="/shop" />
       </div>
     </div>
   );

@@ -32,3 +32,8 @@ next-env.d.ts
 
 # iCloud-excluded dependency folder (symlinked as node_modules)
 node_modules.nosync
+
+# Cloudflare build output
+.open-next/
+.wrangler/
+.dev.vars

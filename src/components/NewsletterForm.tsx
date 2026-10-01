@@ -1,10 +1,11 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { subscribe } from "@/lib/publicActions";
 
 export function NewsletterForm() {
-  const [state, action] = useFormState(subscribe, null);
+  const [state, action] = useActionState(subscribe, null);
   if (state?.ok) return <p className="mt-3 text-sm text-olive">{state.message}</p>;
   return (
     <form action={action} className="mt-3">

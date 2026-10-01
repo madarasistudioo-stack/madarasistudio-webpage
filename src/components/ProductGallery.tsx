@@ -7,7 +7,7 @@ import { ProductArt } from "@/components/ProductArt";
 import { TemplateSpread, type SpreadTheme } from "@/components/TemplateSpread";
 import { cn } from "@/lib/utils";
 
-type Slide = { key: string; label: string; render: () => JSX.Element };
+type Slide = { key: string; label: string; render: () => React.JSX.Element };
 
 /**
  * Product images as a 3D coverflow: the cover in the chosen colour first, then

@@ -8,26 +8,22 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ProductArt } from "@/components/ProductArt";
 import { KolamIcon } from "@/components/Icons";
 import { formatRupees } from "@/lib/utils";
-import type { SearchParams } from "@/lib/listing";
 
 export function generateStaticParams() {
   return CATEGORIES.map((c) => ({ category: c.slug }));
 }
 
-export function generateMetadata({ params }: { params: { category: string } }): Metadata {
+export async function generateMetadata(props: { params: Promise<{ category: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const category = getCategory(params.category);
   return category
     ? { title: `Personalised ${category.name} — Madarasi Studio`, description: category.tagline }
     : {};
 }
 
-export default async function CategoryPage({
-  params,
-  searchParams,
-}: {
-  params: { category: string };
-  searchParams: SearchParams;
-}) {
+
+export default async function CategoryPage(props: { params: Promise<{ category: string }> }) {
+  const params = await props.params;
   const category = getCategory(params.category);
   if (!category) notFound();
 
@@ -79,7 +75,6 @@ export default async function CategoryPage({
         <ProductListing
           products={list}
           basePath={`/shop/${category.slug}`}
-          searchParams={searchParams}
           locked={["category"]}
         />
       </div>

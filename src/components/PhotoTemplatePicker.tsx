@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { KolamIcon } from "@/components/Icons";
+import { uploadPhoto } from "@/lib/upload";
 import { cn } from "@/lib/utils";
 
 export type PhotoSlot = { url: string | null; status: "empty" | "uploading" | "ready" | "error" };
@@ -67,12 +68,7 @@ export function PhotoTemplatePicker({
     updateSlot(index, { url: previewUrl, status: "uploading" });
 
     try {
-      const form = new FormData();
-      form.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: form });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Upload failed.");
-      updateSlot(index, { url: data.url, status: "ready" });
+      updateSlot(index, { url: await uploadPhoto(file), status: "ready" });
     } catch (err) {
       console.error(err);
       updateSlot(index, { status: "error" });

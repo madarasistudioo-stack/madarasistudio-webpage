@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { ADMIN_EMAILS } from "@/lib/admin";
+import { mailConfigured } from "@/lib/mailer";
+import { photoStore } from "@/lib/photos";
 import { Panel, Row } from "@/components/admin/Panel";
 
 const has = (...keys: string[]) => keys.every((k) => Boolean(process.env[k]));
@@ -22,10 +24,10 @@ export default async function StatusPage() {
   const features = [
     { name: "Database", ok: dbMs !== null, note: dbMs !== null ? `responding in ${dbMs} ms` : "not reachable — check DATABASE_URL" },
     { name: "Google sign-in", ok: has("GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET") },
-    { name: "Email sign-in", ok: has("EMAIL_SERVER_HOST", "EMAIL_FROM") },
+    { name: "Email (Resend)", ok: mailConfigured() },
     { name: "Phone sign-in (OTP)", ok: has("TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_VERIFY_SERVICE_SID") },
     { name: "Apple sign-in", ok: has("APPLE_CLIENT_ID", "APPLE_CLIENT_SECRET") },
-    { name: "Photo uploads (Vercel Blob)", ok: has("BLOB_READ_WRITE_TOKEN") },
+    { name: "Photo uploads (Cloudflare KV)", ok: Boolean(await photoStore()) },
     { name: "Payments (Razorpay)", ok: has("RAZORPAY_KEY_ID", "RAZORPAY_KEY_SECRET") },
   ];
   const sha = process.env.VERCEL_GIT_COMMIT_SHA;

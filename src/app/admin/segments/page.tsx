@@ -2,7 +2,8 @@ import Link from "next/link";
 import { SEGMENTS, segmentRows } from "@/lib/segments";
 import { cn } from "@/lib/utils";
 
-export default async function SegmentsPage({ searchParams }: { searchParams: { s?: string } }) {
+export default async function SegmentsPage(props: { searchParams: Promise<{ s?: string }> }) {
+  const searchParams = await props.searchParams;
   const current = SEGMENTS.find((s) => s.id === searchParams.s) ?? SEGMENTS[0];
   const rows = await segmentRows(current.id);
   return (

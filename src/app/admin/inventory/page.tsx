@@ -3,8 +3,10 @@ import { CATEGORIES } from "@/lib/products";
 import { getAllProductsWithSettings } from "@/lib/catalog";
 import { saveProductSetting, resetProductSetting } from "../actions";
 import { cn } from "@/lib/utils";
+import { PublishButton } from "@/components/admin/PublishButton";
 
-export default async function InventoryPage({ searchParams }: { searchParams: { category?: string } }) {
+export default async function InventoryPage(props: { searchParams: Promise<{ category?: string }> }) {
+  const searchParams = await props.searchParams;
   const all = await getAllProductsWithSettings();
   const list = searchParams.category ? all.filter((p) => p.categorySlug === searchParams.category) : all;
   const input = "w-20 rounded border border-mist bg-ivory px-2 py-1 text-sm text-pine focus:border-olive";
@@ -14,7 +16,11 @@ export default async function InventoryPage({ searchParams }: { searchParams: { 
       <h1 className="font-display text-3xl text-pine">Inventory</h1>
       <p className="mt-1 text-sm text-pine/55">
         Prices in rupees. Leave stock empty for made-to-order; 0 shows “Sold out”. Untick Visible to hide a product from the shop.
+        Checkout always uses what you save here; press <b>Publish to website</b> to refresh the shop pages too.
       </p>
+      <div className="mt-4">
+        <PublishButton />
+      </div>
 
       <div className="mt-5 flex flex-wrap gap-2">
         <Tab href="/admin/inventory" active={!searchParams.category}>All ({all.length})</Tab>

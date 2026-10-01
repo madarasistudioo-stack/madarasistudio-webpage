@@ -3,7 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { isAdminEmail } from "@/lib/admin";
 import { addUser, deleteUser, setUserBlocked } from "../actions";
 
-export default async function UsersAdmin({ searchParams }: { searchParams: { q?: string } }) {
+export default async function UsersAdmin(props: { searchParams: Promise<{ q?: string }> }) {
+  const searchParams = await props.searchParams;
   const q = searchParams.q?.trim();
   const users = await prisma.user.findMany({
     where: q

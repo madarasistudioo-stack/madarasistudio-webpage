@@ -8,7 +8,8 @@ import { addNote, deleteNote, setTags, setUserBlocked } from "../../actions";
 
 const PAID = ["paid", "printing", "shipped", "delivered"];
 
-export default async function Customer360({ params }: { params: { id: string } }) {
+export default async function Customer360(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const user = await prisma.user.findUnique({
     where: { id: params.id },
     include: {

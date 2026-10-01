@@ -52,7 +52,6 @@ const MEMORY_SHOWCASE: Showcase[] = [
   { label: "Childhood", caption: "Playful, easy, unforgettable", icon: "paperPlane", accent: "#8FA876" },
 ];
 
-export const revalidate = 300;
 
 export default async function HomePage() {
   const products = await getLiveProducts();

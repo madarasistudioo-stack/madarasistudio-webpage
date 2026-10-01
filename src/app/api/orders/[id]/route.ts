@@ -5,7 +5,8 @@ import { sendMail } from "@/lib/mailer";
 
 // After payment: the customer submits their UPI reference (verified by the
 // admin), or Razorpay's signed response (verified here, marks the order paid).
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const body = await req.json().catch(() => ({}));
   const order = await prisma.order.findUnique({ where: { id: params.id } });
   if (!order || order.status !== "created") return NextResponse.json({ error: "Order not found." }, { status: 404 });

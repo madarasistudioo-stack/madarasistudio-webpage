@@ -2,7 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 
-export default async function InboxPage({ searchParams }: { searchParams: { status?: string } }) {
+export default async function InboxPage(props: { searchParams: Promise<{ status?: string }> }) {
+  const searchParams = await props.searchParams;
   const status = searchParams.status ?? "open";
   const tickets = await prisma.supportTicket.findMany({
     where: status === "all" ? undefined : { status },

@@ -8,7 +8,7 @@ import { getLiveProducts } from "@/lib/catalog";
 import { ProductListing } from "@/components/ProductListing";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { KolamDivider } from "@/components/KolamDivider";
-import type { FilterKey, SearchParams } from "@/lib/listing";
+import type { FilterKey } from "@/lib/listing";
 
 type CollectionType = "occasion" | "place" | "memory";
 
@@ -33,18 +33,19 @@ function resolve(params: { type: string; value: string }) {
   return label ? { type, label, list } : null;
 }
 
-export function generateMetadata({ params }: { params: { type: string; value: string } }): Metadata {
+export async function generateMetadata(props: { params: Promise<{ type: string; value: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const found = resolve(params);
   return found ? { title: `${found.label} — Madarasi Studio`, description: INTRO[found.type](found.label) } : {};
 }
 
-export default async function CollectionPage({
-  params,
-  searchParams,
-}: {
-  params: { type: string; value: string };
-  searchParams: SearchParams;
-}) {
+
+export function generateStaticParams() {
+  return (Object.keys(LISTS) as CollectionType[]).flatMap((type) => LISTS[type].map((v) => ({ type, value: slugify(v) })));
+}
+
+export default async function CollectionPage(props: { params: Promise<{ type: string; value: string }> }) {
+  const params = await props.params;
   const found = resolve(params);
   if (!found) notFound();
   const { type, label, list } = found;
@@ -84,7 +85,6 @@ export default async function CollectionPage({
           <ProductListing
             products={matches}
             basePath={`/collections/${type}/${params.value}`}
-            searchParams={searchParams}
             locked={[type as FilterKey]}
           />
         ) : (

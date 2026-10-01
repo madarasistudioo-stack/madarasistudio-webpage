@@ -131,3 +131,15 @@ export async function setTicketStatus(form: FormData) {
   revalidatePath(`/admin/inbox/${id}`);
   revalidatePath("/admin/inbox");
 }
+
+// Rebuilds the site so inventory edits (prices, stock, hidden products) reach
+// the pre-built shop pages. Uses the Cloudflare deploy hook in DEPLOY_HOOK_URL.
+export async function publishSite(): Promise<{ ok: boolean; message: string }> {
+  await requireAdmin();
+  const hook = process.env.DEPLOY_HOOK_URL;
+  if (!hook) return { ok: false, message: "Publishing isn't set up yet (DEPLOY_HOOK_URL is missing)." };
+  const res = await fetch(hook, { method: "POST" });
+  return res.ok
+    ? { ok: true, message: "Publishing — your changes will be live in about 3–5 minutes." }
+    : { ok: false, message: `Couldn't start publishing (error ${res.status}). Try again in a minute.` };
+}

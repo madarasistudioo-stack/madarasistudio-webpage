@@ -7,6 +7,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import { hashOtp, normalizePhone, OTP_MAX_ATTEMPTS } from "@/lib/otp";
 import { isAdminEmail } from "@/lib/admin";
+import { mailConfigured, sendMail } from "@/lib/mailer";
 
 const providers: AuthOptions["providers"] = [];
 
@@ -32,19 +33,20 @@ if (process.env.APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET) {
   );
 }
 
-// --- Email magic link -----------------------------------------------------
-if (process.env.EMAIL_SERVER_HOST && process.env.EMAIL_FROM) {
+// --- Email magic link (sent through Resend's API) ------------------------
+if (mailConfigured()) {
   providers.push(
     EmailProvider({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: Number(process.env.EMAIL_SERVER_PORT ?? 587),
-        auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
-        },
-      },
       from: process.env.EMAIL_FROM,
+      async sendVerificationRequest({ identifier, url }) {
+        const sent = await sendMail(
+          identifier,
+          "Your sign-in link for Madarasi Studio",
+          `Sign in to Madarasi Studio:\n\n${url}\n\nThis link expires in 24 hours. If you didn't ask for it, you can ignore this email.`,
+          `<p>Sign in to Madarasi Studio:</p><p><a href="${url}" style="background:#5C6B3E;color:#F8F5EC;padding:10px 18px;border-radius:6px;text-decoration:none">Sign in</a></p><p style="color:#888">This link expires in 24 hours. If you didn't ask for it, you can ignore this email.</p>`
+        );
+        if (!sent) throw new Error("Could not send the sign-in email.");
+      },
     })
   );
 }

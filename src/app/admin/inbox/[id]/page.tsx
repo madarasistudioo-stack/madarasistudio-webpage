@@ -5,7 +5,8 @@ import { mailConfigured } from "@/lib/mailer";
 import { replyTicket, setTicketStatus } from "../../actions";
 import { cn } from "@/lib/utils";
 
-export default async function TicketPage({ params }: { params: { id: string } }) {
+export default async function TicketPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const t = await prisma.supportTicket.findUnique({ where: { id: params.id }, include: { messages: { orderBy: { createdAt: "asc" } } } });
   if (!t) notFound();
   const wa = t.phone ? `https://wa.me/${t.phone.replace(/\D/g, "").replace(/^(\d{10})$/, "91$1")}` : null;
